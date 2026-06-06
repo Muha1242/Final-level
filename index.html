@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Avtopoyga</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: white;
+      padding: 15px;
+    }
+    canvas { border: 3px solid #ffd700; border-radius: 10px; display: block; }
+    #canvasWrap { position: relative; }
+    #tepa {
+      font-size: 14px; color: #ffd700;
+      margin-bottom: 8px; padding: 8px 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px; text-align: center;
+    }
+    #progressWrap {
+      width: 360px; height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 5px; margin-top: 8px;
+    }
+    #progressBar {
+      height: 8px;
+      background: linear-gradient(90deg, #00ff88, #ffd700);
+      border-radius: 5px; width: 0%; transition: width 0.2s;
+    }
+    #tugmalar {
+      display: flex; justify-content: space-between;
+      width: 360px; margin-top: 10px; gap: 10px;
+    }
+    .harakat {
+      flex: 1; padding: 18px; font-size: 26px;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 15px; cursor: pointer; color: white;
+      user-select: none; -webkit-user-select: none;
+    }
+    .harakat:active { background: rgba(255,255,255,0.3); }
+    .overlay {
+      display: none; position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center; z-index: 20;
+      background: rgba(0,0,0,0.95);
+      padding: 20px 18px; border-radius: 15px; width: 310px;
+    }
+    .overlay h2 { font-size: 20px; margin-bottom: 8px; }
+    .overlay p { font-size: 13px; margin-bottom: 10px; line-height: 1.6; }
+    .btn {
+      padding: 11px 20px; font-size: 14px;
+      background: linear-gradient(45deg, #ff6b6b, #ffd700);
+      border: none; border-radius: 25px;
+      cursor: pointer; color: white; font-weight: bold; margin: 4px;
+    }
+    .btn-gray {
+      padding: 11px 20px; font-size: 14px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 25px; cursor: pointer; color: white; margin: 4px;
+    }
+    .royxat {
+      max-height: 120px; overflow-y: auto;
+      background: rgba(255,0,0,0.08);
+      border: 1px solid rgba(255,0,0,0.2);
+      border-radius: 10px; padding: 8px;
+      margin-bottom: 10px; text-align: left;
+    }
+    .royxat-item {
+      font-size: 12px; color: #ff8888;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .ogohlantirish {
+      background: rgba(255,200,0,0.08);
+      border: 1px solid rgba(255,200,0,0.2);
+      border-radius: 10px; padding: 10px;
+      margin-bottom: 10px; font-size: 13px;
+      color: #ffd700; line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div id="tepa">🏆 450 ball to'pla — keyingi bosqichga o'tasan!</div>
+  <div id="canvasWrap">
+    <canvas id="canvas" width="360" height="540"></canvas>
+
+    <div class="overlay" id="disclaimer" style="display:block">
+      <h2 style="color:#ff4444">⚠️ IRODASIZLAR RO'YXATI</h2>
+      <p style="color:#aaa;font-size:12px">O'yinni boshlab, oxiriga yetmay chiqib ketganlar:</p>
+      <div class="royxat" id="irodasizlarRoyxat">
+        <div class="royxat-item">⏳ Yuklanmoqda...</div>
+      </div>
+      <div class="ogohlantirish">
+        ⚡ Agar shular orasida bo'lishni istamasang — oxirigacha bor!<br><br>
+        Agar o'zingga ishonmasang — o'yinni boshlama, seni hech kim majburlamayapti.
+      </div>
+      <button class="btn" onclick="nomSorovKo()">Men tayyor! 💪</button>
+      <button class="btn-gray" onclick="chiqibKet()">Men tayyor emasman</button>
+    </div>
+
+    <div class="overlay" id="nomSorov">
+      <h2 style="color:#ffd700">👤 Username kiriting</h2>
+      <p style="color:#aaa">O'yin davomida sizni shu nom bilan tanishadi!</p>
+      <input id="nomInput" type="text" maxlength="20" placeholder="Username..."
+        style="width:100%;padding:10px;border-radius:10px;
+        border:1px solid #ffd700;background:rgba(255,255,255,0.1);
+        color:white;font-size:15px;margin-bottom:12px;
+        text-align:center;outline:none;">
+      <button class="btn" onclick="oyinBoshlash()">O'yinni boshlash 🚀</button>
+    </div>
+
+    <div class="overlay" id="gameOver">
+      <h2 style="color:#ff6b6b">💥 Urildi!</h2>
+      <p>Hisob: <span id="yakuniyBall">0</span><br>
+      <span style="color:#ff8888">Siz irodasizlar ro'yxatiga qo'shildingiz 😔</span></p>
+      <button class="btn" onclick="qaytaBoshlash()">Qayta urinish 🔄</button>
+      <button class="btn-gray" onclick="chiqibKet()">Chiqib ketish</button>
+    </div>
+
+    <div class="overlay" id="yutish">
+      <h2 style="color:#00ff88">🎉 450 ball!</h2>
+      <p>Birinchi bosqichdan o'tdingiz!<br>Endi asosiy o'yinlar boshlanadi!</p>
+      <button class="btn" onclick="window.location.href='bosqich.html'">Davom et →</button>
+    </div>
+  </div>
+
+  <div id="progressWrap"><div id="progressBar"></div></div>
+  <div id="tugmalar">
+    <button class="harakat"
+      ontouchstart="chapBasildi=true;event.preventDefault()"
+      ontouchend="chapBasildi=false"
+      onmousedown="chapBasildi=true" onmouseup="chapBasildi=false">⬅️</button>
+    <button class="harakat"
+      ontouchstart="ongBasildi=true;event.preventDefault()"
+      ontouchend="ongBasildi=false"
+      onmousedown="ongBasildi=true" onmouseup="ongBasildi=false">➡️</button>
+  </div>
+
+<script>
+  const MASTER_KEY = '$2a$10$zgIWOwo7EwLF0YizkNjLxOSoil46/zMqKsmjQsMdwQtdAR7XSv.rS';
+  const BIN_URL = 'https://api.jsonbin.io/v3/b';
+  let BIN_ID = localStorage.getItem('binId') || null;
+
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const W = 360, H = 540;
+  const MASHINA_Y = H - 70;
+  const MK = 24, MB = 38;
+
+  let mashinaX = W/2, ball = 0, oyin = false, tezlik = 3;
+  let dushmanlar = [], yolOffset = 0;
+  let chapBasildi = false, ongBasildi = false;
+  let animId, dushmanInterval, ballInterval;
+  let oxirgiVaqt = 0;
+  let oyinchiNom = '';
+  let malumotar = { irodasizlar: [], goliblar: [] };
+
+  // ===== JSONBin =====
+  async function malumotYukla() {
+    try {
+      if (!BIN_ID) {
+        // Yangi bin yaratish
+        const res = await fetch(BIN_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': MASTER_KEY,
+            'X-Bin-Name': 'oyinchilar'
+          },
+          body: JSON.stringify({ irodasizlar: [], goliblar: [] })
+        });
+        const data = await res.json();
+        BIN_ID = data.metadata.id;
+        localStorage.setItem('binId', BIN_ID);
+      } else {
+        const res = await fetch(`${BIN_URL}/${BIN_ID}/latest`, {
+          headers: { 'X-Master-Key': MASTER_KEY }
+        });
+        const data = await res.json();
+        malumotar = data.record;
+      }
+    } catch(e) {
+      console.log('Yuklash xatosi:', e);
+    }
+    irodasizlarKo();
+  }
+
+  async function malumotSaqla() {
+    if (!BIN_ID) return;
+    try {
+      await fetch(`${BIN_URL}/${BIN_ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': MASTER_KEY
+        },
+        body: JSON.stringify(malumotar)
+      });
+    } catch(e) {
+      console.log('Saqlash xatosi:', e);
+    }
+  }
+
+  function irodasizlarKo() {
+    const div = document.getElementById('irodasizlarRoyxat');
+    const list = malumotar.irodasizlar || [];
+    if (list.length === 0) {
+      div.innerHTML = '<div class="royxat-item">😔 Hali hech kim yo\'q...</div>';
+    } else {
+      div.innerHTML = list.slice(-8).reverse()
+        .map(n => `<div class="royxat-item">😔 ${n}</div>`).join('');
+    }
+  }
+
+  async function irodasizlarQosh(nom) {
+    if (!nom) return;
+    if (!malumotar.irodasizlar.includes(nom)) {
+      malumotar.irodasizlar.push(nom);
+      await malumotSaqla();
+    }
+  }
+
+  async function irodasizlarOchir(nom) {
+    malumotar.irodasizlar = malumotar.irodasizlar.filter(n => n !== nom);
+    await malumotSaqla();
+  }
+
+  function nomSorovKo() {
+    document.getElementById('disclaimer').style.display = 'none';
+    document.getElementById('nomSorov').style.display = 'block';
+    setTimeout(() => document.getElementById('nomInput').focus(), 100);
+  }
+
+  function oyinBoshlash() {
+    const nom = document.getElementById('nomInput').value.trim();
+    if (!nom) {
+      document.getElementById('nomInput').style.border = '1px solid red';
+      return;
+    }
+    oyinchiNom = nom;
+    localStorage.setItem('oyinchiNom', nom);
+    localStorage.setItem('binId', BIN_ID);
+    document.getElementById('nomSorov').style.display = 'none';
+    boshlash();
+  }
+
+  function chiqibKet() {
+    window.location.href = 'about:blank';
+  }
+
+  // ===== YO'L =====
+  function yolChiz() {
+    ctx.fillStyle = '#2a2a2a';
+    ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = '#1a4a1a';
+    ctx.fillRect(0,0,35,H);
+    ctx.fillRect(W-35,0,35,H);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(33,0,4,H);
+    ctx.fillRect(W-37,0,4,H);
+    ctx.fillStyle = '#ffd700';
+    for (let y=(yolOffset%60)-60; y<H+60; y+=60)
+      ctx.fillRect(W/2-2,y,4,35);
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    for (let y=(yolOffset%60)-60; y<H+60; y+=60) {
+      ctx.fillRect(W/2-60,y,3,22);
+      ctx.fillRect(W/2+57,y,3,22);
+    }
+  }
+
+  // ===== MASHINA =====
+  function mashinaChiz() {
+    ctx.fillStyle = '#e74c3c';
+    ctx.beginPath();
+    ctx.roundRect(mashinaX-MK, MASHINA_Y-MB/2, MK*2, MB, 6);
+    ctx.fill();
+    ctx.fillStyle = '#85c1e9';
+    ctx.beginPath();
+    ctx.roundRect(mashinaX-13, MASHINA_Y-MB/2+5, 26, 13, 4);
+    ctx.fill();
+    ctx.fillStyle = '#1a1a1a';
+    [[-MK+3,-7],[MK-3,-7],[-MK+3,7],[MK-3,7]].forEach(([dx,dy]) => {
+      ctx.beginPath();
+      ctx.ellipse(mashinaX+dx, MASHINA_Y+dy, 5,7,0,0,Math.PI*2);
+      ctx.fill();
+    });
+    ctx.fillStyle = '#f9e11e';
+    ctx.fillRect(mashinaX-MK+2, MASHINA_Y-MB/2, 7, 4);
+    ctx.fillRect(mashinaX+MK-9, MASHINA_Y-MB/2, 7, 4);
+  }
+
+  // ===== DUSHMAN =====
+  function dushmanChiz(d) {
+    const ranglar = ['#3498db','#9b59b6','#e67e22','#1abc9c','#e91e63'];
+    ctx.fillStyle = ranglar[d.rang];
+    ctx.beginPath();
+    ctx.roundRect(d.x-22,d.y-18,44,36,5);
+    ctx.fill();
+    ctx.fillStyle = '#d6eaf8';
+    ctx.beginPath();
+    ctx.roundRect(d.x-13,d.y-12,26,11,3);
+    ctx.fill();
+    ctx.fillStyle = '#1a1a1a';
+    [[-19,-7],[19,-7],[-19,7],[19,7]].forEach(([dx,dy]) => {
+      ctx.beginPath();
+      ctx.ellipse(d.x+dx,d.y+dy,5,6,0,0,Math.PI*2);
+      ctx.fill();
+    });
+    ctx.fillStyle = '#ff4444';
+    ctx.fillRect(d.x-12,d.y+14,8,4);
+    ctx.fillRect(d.x+4,d.y+14,8,4);
+  }
+
+  function dushmanQosh() {
+    if (!oyin) return;
+    for (let i=0; i<2; i++) {
+      dushmanlar.push({
+        x: Math.random()*260+50,
+        y: -40 - i*90,
+        rang: Math.floor(Math.random()*5),
+        tezlik: tezlik + Math.random()*1.5
+      });
+    }
+  }
+
+  function toqnashuv(d) {
+    return Math.abs(d.x-mashinaX) < (MK+18) &&
+           Math.abs(d.y-MASHINA_Y) < (MB/2+14);
+  }
+
+  function loop(vaqt) {
+    if (!oyin) return;
+    animId = requestAnimationFrame(loop);
+    if (vaqt - oxirgiVaqt < 16) return;
+    oxirgiVaqt = vaqt;
+
+    if (chapBasildi && mashinaX>50) mashinaX-=5;
+    if (ongBasildi && mashinaX<W-50) mashinaX+=5;
+
+    yolOffset += tezlik;
+    yolChiz();
+
+    dushmanlar = dushmanlar.filter(d => {
+      d.y += d.tezlik;
+      dushmanChiz(d);
+      if (toqnashuv(d)) { tugat(false); return false; }
+      return d.y < H+50;
+    });
+
+    mashinaChiz();
+
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.beginPath(); ctx.roundRect(5,5,155,30,8); ctx.fill();
+    ctx.fillStyle = '#ffd700';
+    ctx.font = 'bold 15px Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText('⭐ '+ball+' / 450', 12, 27);
+  }
+
+  function boshlash() {
+    ['gameOver','yutish'].forEach(id =>
+      document.getElementById(id).style.display='none');
+    oyin=true; ball=0; tezlik=3;
+    mashinaX=W/2; dushmanlar=[];
+    yolOffset=0; oxirgiVaqt=0;
+    clearInterval(dushmanInterval);
+    clearInterval(ballInterval);
+    dushmanInterval = setInterval(dushmanQosh, 900);
+    ballInterval = setInterval(() => {
+      if (!oyin) return;
+      ball++;
+      document.getElementById('progressBar').style.width =
+        Math.min((ball/450)*100,100)+'%';
+      if (ball>=450) tugat(true);
+    }, 100);
+    requestAnimationFrame(loop);
+  }
+
+  async function tugat(yutdimi) {
+    oyin=false;
+    cancelAnimationFrame(animId);
+    clearInterval(dushmanInterval);
+    clearInterval(ballInterval);
+    if (yutdimi) {
+      await irodasizlarOchir(oyinchiNom);
+      localStorage.setItem('yutgan', oyinchiNom);
+      localStorage.setItem('binId', BIN_ID);
+      document.getElementById('yutish').style.display='block';
+    } else {
+      await irodasizlarQosh(oyinchiNom);
+      document.getElementById('yakuniyBall').textContent=ball;
+      document.getElementById('gameOver').style.display='block';
+      irodasizlarKo();
+    }
+  }
+
+  function qaytaBoshlash() {
+    document.getElementById('gameOver').style.display='none';
+    boshlash();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key==='ArrowLeft') chapBasildi=true;
+    if (e.key==='ArrowRight') ongBasildi=true;
+    if (e.key==='Enter' &&
+        document.getElementById('nomSorov').style.display==='block')
+      oyinBoshlash();
+  });
+  document.addEventListener('keyup', e => {
+    if (e.key==='ArrowLeft') chapBasildi=false;
+    if (e.key==='ArrowRight') ongBasildi=false;
+  });
+
+  malumotYukla();
+  yolChiz();
+  mashinaChiz();
+</script>
+</body>
+</html>
