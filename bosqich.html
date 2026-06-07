@@ -190,8 +190,7 @@ function b1Loop(ts) {
   if (bosqich!==1) return;
   animId = requestAnimationFrame(b1Loop);
   if (!ilonVaqt) ilonVaqt = ts;
-  // Ovqat yegan sari tezlashadi
-  const interval = Math.max(80, 130 - ovqatSon * 2);
+  const interval = Math.max(80, 130 - ovqatSon*2);
   if (ts - ilonVaqt < interval) return;
   ilonVaqt = ts;
 
@@ -229,7 +228,6 @@ function b1Chiz() {
   for(let x=0;x<=W;x+=BOX){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
   for(let y=0;y<=H;y+=BOX){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
 
-  // Ovqat
   ctx.fillStyle='#ff3333';
   ctx.beginPath();
   ctx.arc((ovqat.x+0.5)*BOX,(ovqat.y+0.5)*BOX,BOX/2-1,0,Math.PI*2);
@@ -237,7 +235,6 @@ function b1Chiz() {
   ctx.fillStyle='#22aa22';
   ctx.fillRect((ovqat.x+0.5)*BOX-1,ovqat.y*BOX,2,5);
 
-  // Ilon
   ilon.forEach((s,i)=>{
     const g=ctx.createRadialGradient(
       (s.x+0.5)*BOX,(s.y+0.5)*BOX,1,
@@ -248,7 +245,6 @@ function b1Chiz() {
     ctx.beginPath();
     ctx.roundRect(s.x*BOX+2,s.y*BOX+2,BOX-4,BOX-4,4);
     ctx.fill();
-    // Ko'z
     if(i===0){
       ctx.fillStyle='#000';
       ctx.beginPath();
@@ -258,7 +254,7 @@ function b1Chiz() {
   });
 
   ctx.fillStyle='rgba(0,0,0,0.6)';
-  ctx.beginPath();ctx.roundRect(5,5,160,30,8);ctx.fill();
+  ctx.beginPath();ctx.roundRect(5,5,185,30,8);ctx.fill();
   ctx.fillStyle='#ffd700';
   ctx.font='bold 15px Arial';
   ctx.textAlign='left';
@@ -267,7 +263,7 @@ function b1Chiz() {
 
 // ========== BOSQICH 2: PING-PONG ==========
 let raketa, topX, topY, topDX, topDY, pingBall, pingOyin;
-let pingKomputerRaketa; // AI raketa
+let pingKomputer;
 
 function b2Boshlash() {
   overlayYop();
@@ -281,15 +277,14 @@ function b2Boshlash() {
   `);
 
   raketa = {x:W/2-50, y:H-22, w:100, h:14};
-  pingKomputerRaketa = {x:W/2-50, y:18, w:100, h:14};
+  pingKomputer = {x:W/2-50, y:18, w:100, h:14};
   topX=W/2; topY=H/2;
-  topDX=3; topDY=5;
+  topDX=4; topDY=-6;
   pingBall=0; pingOyin=true;
   pingChapBas=false; pingOngBas=false;
 
   const ch=document.getElementById('btnChap');
   const on=document.getElementById('btnOng');
-
   ch.onmousedown=()=>pingChapBas=true;
   ch.onmouseup=()=>pingChapBas=false;
   ch.ontouchstart=(e)=>{e.preventDefault();pingChapBas=true;};
@@ -299,12 +294,11 @@ function b2Boshlash() {
   on.ontouchstart=(e)=>{e.preventDefault();pingOngBas=true;};
   on.ontouchend=()=>pingOngBas=false;
 
-  // Sichqoncha bilan ham boshqarish
   canvas.onmousemove=(e)=>{
-    if(bosqich!==2) return;
+    if(bosqich!==2)return;
     const rect=canvas.getBoundingClientRect();
     const mx=e.clientX-rect.left;
-    raketa.x = Math.max(35, Math.min(W-35-raketa.w, mx-raketa.w/2));
+    raketa.x=Math.max(35,Math.min(W-35-raketa.w,mx-raketa.w/2));
   };
 
   cancelAnimationFrame(animId);
@@ -315,150 +309,107 @@ function b2Loop() {
   if (bosqich!==2||!pingOyin) return;
   animId = requestAnimationFrame(b2Loop);
 
-  // Raketa harakati
   if (pingChapBas && raketa.x>35) raketa.x-=8;
   if (pingOngBas && raketa.x+raketa.w<W-35) raketa.x+=8;
 
-  // AI raketa (yuqori) — har doim to'pga qarab harakat qiladi
-  const aiTezlik = 3 + Math.floor(pingBall/5);
-  if (topDY < 0) { // Top yuqoriga ketayotganda
-    if (pingKomputerRaketa.x + pingKomputerRaketa.w/2 < topX - 5) {
-      pingKomputerRaketa.x = Math.min(pingKomputerRaketa.x + aiTezlik, W-35-pingKomputerRaketa.w);
-    } else if (pingKomputerRaketa.x + pingKomputerRaketa.w/2 > topX + 5) {
-      pingKomputerRaketa.x = Math.max(pingKomputerRaketa.x - aiTezlik, 35);
-    }
+  const aiTez=3+Math.floor(pingBall/5);
+  if(topDY<0){
+    if(pingKomputer.x+pingKomputer.w/2<topX-5)
+      pingKomputer.x=Math.min(pingKomputer.x+aiTez,W-35-pingKomputer.w);
+    else if(pingKomputer.x+pingKomputer.w/2>topX+5)
+      pingKomputer.x=Math.max(pingKomputer.x-aiTez,35);
   }
 
-  // Top harakati
   topX+=topDX; topY+=topDY;
+  if(topX<12||topX>W-12) topDX*=-1;
+  if(topY<12) topDY*=-1;
 
-  // Devorlar
-  if (topX<12||topX>W-12) topDX*=-1;
-
-  // Yuqori AI raketa bilan to'qnashuv
-  if (topY-10<=pingKomputerRaketa.y+pingKomputerRaketa.h &&
-      topY>pingKomputerRaketa.y &&
-      topX>pingKomputerRaketa.x-5 &&
-      topX<pingKomputerRaketa.x+pingKomputerRaketa.w+5) {
+  if(topY-10<=pingKomputer.y+pingKomputer.h&&
+     topY>pingKomputer.y&&
+     topX>pingKomputer.x-5&&
+     topX<pingKomputer.x+pingKomputer.w+5){
     topDY=Math.abs(topDY);
-    let hit=(topX-(pingKomputerRaketa.x+pingKomputerRaketa.w/2))/(pingKomputerRaketa.w/2);
+    let hit=(topX-(pingKomputer.x+pingKomputer.w/2))/(pingKomputer.w/2);
     topDX=hit*6;
   }
 
-  // Pastki raketa bilan to'qnashuv
-  if (topY+10>=raketa.y &&
-      topY<raketa.y+raketa.h+5 &&
-      topX>raketa.x-5 &&
-      topX<raketa.x+raketa.w+5) {
+  if(topY+10>=raketa.y&&
+     topY<raketa.y+raketa.h+5&&
+     topX>raketa.x-5&&
+     topX<raketa.x+raketa.w+5){
     topDY=-Math.abs(topDY);
     let hit=(topX-(raketa.x+raketa.w/2))/(raketa.w/2);
     topDX=hit*6;
     pingBall++;
-    // Har 4 ballda tezlashadi
     if(pingBall%4===0){
-      topDX*=1.15; topDY*=1.15;
-      // Max tezlik chegarasi
-      const maxTez=12;
-      if(Math.abs(topDX)>maxTez) topDX=topDX>0?maxTez:-maxTez;
-      if(Math.abs(topDY)>maxTez) topDY=topDY>0?maxTez:-maxTez;
+      topDX*=1.15;topDY*=1.15;
+      const mx=12;
+      if(Math.abs(topDX)>mx)topDX=topDX>0?mx:-mx;
+      if(Math.abs(topDY)>mx)topDY=topDY>0?mx:-mx;
     }
     if(pingBall>=20){
       pingOyin=false;
       cancelAnimationFrame(animId);
       canvas.onmousemove=null;
       b2Chiz();
-      otdiKo('🔥 Bosqich 2 o\'tdi!','Zo\'r! Endi kosmik otishma!','Davom et →', b3Boshlash);
+      otdiKo('🔥 Bosqich 2 o\'tdi!','Zo\'r! Endi kosmik otishma!','Davom et →',b3Boshlash);
       return;
     }
   }
 
-  // Top tushib ketsa
   if(topY>H+20){
     pingOyin=false;
     cancelAnimationFrame(animId);
     canvas.onmousemove=null;
-    gameOverKo(`${pingBall} ball to'pladingiz. 20 ta kerak edi!`, b2Boshlash);
+    gameOverKo(`${pingBall} ball to'pladingiz. 20 ta kerak edi!`,b2Boshlash);
     return;
   }
-
-  // Top yuqoridan chiqsa
-  if(topY<12){
-    topDY=Math.abs(topDY);
-  }
-
   b2Chiz();
 }
 
 function b2Chiz() {
-  // Fon
   ctx.fillStyle='#000820';
   ctx.fillRect(0,0,W,H);
-
-  // Maydon chiziqlari
-  ctx.strokeStyle='rgba(0,180,255,0.2)';
+  ctx.strokeStyle='rgba(0,150,255,0.2)';
   ctx.lineWidth=2;
   ctx.strokeRect(33,5,W-68,H-10);
-
-  // O'rta chiziq
-  ctx.setLineDash([12,8]);
-  ctx.strokeStyle='rgba(255,255,255,0.12)';
-  ctx.lineWidth=2;
+  ctx.setLineDash([10,10]);
+  ctx.strokeStyle='rgba(255,255,255,0.1)';
   ctx.beginPath();ctx.moveTo(33,H/2);ctx.lineTo(W-35,H/2);ctx.stroke();
   ctx.setLineDash([]);
 
-  // AI raketa (yuqori - qizil)
-  const rg2=ctx.createLinearGradient(pingKomputerRaketa.x,pingKomputerRaketa.y,
-    pingKomputerRaketa.x,pingKomputerRaketa.y+pingKomputerRaketa.h);
-  rg2.addColorStop(0,'#ff4444');
-  rg2.addColorStop(1,'#aa0000');
+  // AI raketa
+  const rg2=ctx.createLinearGradient(pingKomputer.x,pingKomputer.y,pingKomputer.x,pingKomputer.y+pingKomputer.h);
+  rg2.addColorStop(0,'#ff4444');rg2.addColorStop(1,'#aa0000');
   ctx.fillStyle=rg2;
-  ctx.beginPath();
-  ctx.roundRect(pingKomputerRaketa.x,pingKomputerRaketa.y,
-    pingKomputerRaketa.w,pingKomputerRaketa.h,6);
-  ctx.fill();
-  ctx.fillStyle='rgba(255,100,100,0.4)';
-  ctx.beginPath();
-  ctx.roundRect(pingKomputerRaketa.x,pingKomputerRaketa.y,
-    pingKomputerRaketa.w,pingKomputerRaketa.h,6);
-  ctx.fill();
+  ctx.beginPath();ctx.roundRect(pingKomputer.x,pingKomputer.y,pingKomputer.w,pingKomputer.h,6);ctx.fill();
 
   // Top
   const tg=ctx.createRadialGradient(topX-3,topY-3,1,topX,topY,12);
-  tg.addColorStop(0,'#ffffff');
-  tg.addColorStop(0.5,'#ffd700');
-  tg.addColorStop(1,'#ff8800');
+  tg.addColorStop(0,'#ffffff');tg.addColorStop(0.5,'#ffd700');tg.addColorStop(1,'#ff8800');
   ctx.fillStyle=tg;
-  ctx.shadowColor='#ffd700';
-  ctx.shadowBlur=15;
+  ctx.shadowColor='#ffd700';ctx.shadowBlur=15;
   ctx.beginPath();ctx.arc(topX,topY,12,0,Math.PI*2);ctx.fill();
   ctx.shadowBlur=0;
 
-  // Pastki raketa (ko'k)
+  // Raketa
   const rg=ctx.createLinearGradient(raketa.x,raketa.y,raketa.x,raketa.y+raketa.h);
-  rg.addColorStop(0,'#00ddff');
-  rg.addColorStop(1,'#0066aa');
+  rg.addColorStop(0,'#00ddff');rg.addColorStop(1,'#0066aa');
   ctx.fillStyle=rg;
-  ctx.shadowColor='#00aaff';
-  ctx.shadowBlur=10;
+  ctx.shadowColor='#00aaff';ctx.shadowBlur=10;
   ctx.beginPath();ctx.roundRect(raketa.x,raketa.y,raketa.w,raketa.h,7);ctx.fill();
   ctx.shadowBlur=0;
 
-  // Hisob
-  ctx.fillStyle='rgba(0,0,0,0.7)';
-  ctx.beginPath();ctx.roundRect(5,5,155,30,8);ctx.fill();
-  ctx.fillStyle='#ffd700';
-  ctx.font='bold 15px Arial';
-  ctx.textAlign='left';
+  ctx.fillStyle='rgba(0,0,0,0.6)';
+  ctx.beginPath();ctx.roundRect(5,5,145,30,8);ctx.fill();
+  ctx.fillStyle='#ffd700';ctx.font='bold 15px Arial';ctx.textAlign='left';
   ctx.fillText(`🏓 ${pingBall} / 20`,12,26);
 
-  // Tezlik ko'rsatgich
   const tezDaraja=Math.min(Math.floor(pingBall/4)+1,5);
-  ctx.fillStyle='rgba(0,0,0,0.7)';
+  ctx.fillStyle='rgba(0,0,0,0.6)';
   ctx.beginPath();ctx.roundRect(W-100,5,90,30,8);ctx.fill();
-  ctx.fillStyle='#ff6b6b';
-  ctx.font='bold 13px Arial';
-  ctx.textAlign='right';
-  ctx.fillText(`⚡ ${'█'.repeat(tezDaraja)}${'░'.repeat(5-tezDaraja)}`,W-10,26);
+  ctx.fillStyle='#ff6b6b';ctx.font='bold 13px Arial';ctx.textAlign='right';
+  ctx.fillText(`⚡${'█'.repeat(tezDaraja)}${'░'.repeat(5-tezDaraja)}`,W-10,26);
 }
 
 // ========== BOSQICH 3: KOSMIK ==========
@@ -476,46 +427,38 @@ function b3Boshlash() {
     </div>
   `);
 
-  kosmikKema = {x: W/2};
-  kosmikOtlar = [];
-  kosmikDush = [];
-  kosmikBall = 0;
-  kosmikOyin = true;
-  kosmikDushTimer = 0;
-  kosmikChapBas = false;
-  kosmikOngBas = false;
+  kosmikKema={x:W/2};
+  kosmikOtlar=[];
+  kosmikDush=[];
+  kosmikBall=0;
+  kosmikOyin=true;
+  kosmikDushTimer=0;
+  kosmikChapBas=false;
+  kosmikOngBas=false;
 
   const ch=document.getElementById('btnChap');
   const on=document.getElementById('btnOng');
   const ot=document.getElementById('btnOt');
 
-  // Telefon tugmalari
   ch.ontouchstart=(e)=>{e.preventDefault();kosmikChapBas=true;};
   ch.ontouchend=()=>kosmikChapBas=false;
   ch.onmousedown=()=>kosmikChapBas=true;
   ch.onmouseup=()=>kosmikChapBas=false;
-
   on.ontouchstart=(e)=>{e.preventDefault();kosmikOngBas=true;};
   on.ontouchend=()=>kosmikOngBas=false;
   on.onmousedown=()=>kosmikOngBas=true;
   on.onmouseup=()=>kosmikOngBas=false;
+  ot.onclick=()=>kosmikOtlar.push({x:kosmikKema.x,y:H-50});
+  ot.ontouchstart=(e)=>{e.preventDefault();kosmikOtlar.push({x:kosmikKema.x,y:H-50});};
 
-  // Otish — touch, click, mousedown hammasi
-  ot.onclick=()=>kosmikOtlar.push({x:kosmikKema.x, y:H-50});
-  ot.ontouchstart=(e)=>{e.preventDefault();kosmikOtlar.push({x:kosmikKema.x, y:H-50});};
-
-  // Sichqoncha bilan kema boshqarish
   canvas.onmousemove=(e)=>{
-    if(bosqich!==3) return;
+    if(bosqich!==3)return;
     const rect=canvas.getBoundingClientRect();
-    const mx=e.clientX-rect.left;
-    kosmikKema.x=Math.max(50,Math.min(W-50,mx));
+    kosmikKema.x=Math.max(50,Math.min(W-50,e.clientX-rect.left));
   };
-
-  // Sichqoncha click bilan otish
   canvas.onclick=(e)=>{
-    if(bosqich!==3) return;
-    kosmikOtlar.push({x:kosmikKema.x, y:H-50});
+    if(bosqich!==3)return;
+    kosmikOtlar.push({x:kosmikKema.x,y:H-50});
   };
 
   cancelAnimationFrame(animId);
@@ -527,14 +470,13 @@ function b3Loop(ts) {
   animId = requestAnimationFrame(b3Loop);
   if (!kosmikDushTimer) kosmikDushTimer=ts;
 
-  if (kosmikChapBas && kosmikKema.x>50) kosmikKema.x-=6;
-  if (kosmikOngBas && kosmikKema.x<W-50) kosmikKema.x+=6;
+  if(kosmikChapBas&&kosmikKema.x>50)kosmikKema.x-=6;
+  if(kosmikOngBas&&kosmikKema.x<W-50)kosmikKema.x+=6;
 
-  // Dushman qo'shish — ball oshgan sari tezlashadi
-  const dushInterval = Math.max(400, 900 - kosmikBall*15);
-  if (ts-kosmikDushTimer>dushInterval) {
+  const dushInterval=Math.max(400,900-kosmikBall*15);
+  if(ts-kosmikDushTimer>dushInterval){
     kosmikDushTimer=ts;
-    if (kosmikDush.length<12) {
+    if(kosmikDush.length<12){
       kosmikDush.push({
         x:Math.random()*(W-80)+40,
         y:-30,
@@ -543,26 +485,22 @@ function b3Loop(ts) {
     }
   }
 
-  // Fon
   ctx.fillStyle='#000010';
   ctx.fillRect(0,0,W,H);
 
-  // Yulduzlar
   for(let i=0;i<80;i++){
-    const yulduzX=(i*67+ts*0.02*(i%3+1))%W;
-    const yulduzY=(i*89+ts*0.01*(i%2+1))%H;
+    const yx=(i*67+ts*0.02*(i%3+1))%W;
+    const yy=(i*89+ts*0.01*(i%2+1))%H;
     ctx.fillStyle=`rgba(255,255,255,${0.1+Math.sin(ts*0.001+i)*0.3+0.3})`;
     ctx.beginPath();
-    ctx.arc(yulduzX,yulduzY,i%5===0?1.5:0.7,0,Math.PI*2);
+    ctx.arc(yx,yy,i%5===0?1.5:0.7,0,Math.PI*2);
     ctx.fill();
   }
 
-  // Otlar
   kosmikOtlar=kosmikOtlar.filter(o=>{
     o.y-=10;
     ctx.fillStyle='#ffee00';
-    ctx.shadowColor='#ffee00';
-    ctx.shadowBlur=10;
+    ctx.shadowColor='#ffee00';ctx.shadowBlur=10;
     ctx.fillRect(o.x-2,o.y,4,16);
     ctx.shadowBlur=0;
     let hit=false;
@@ -570,45 +508,28 @@ function b3Loop(ts) {
       if(!hit&&Math.abs(o.x-d.x)<22&&Math.abs(o.y-d.y)<22){
         hit=true;
         kosmikBall++;
-        // Portlash effekti
         for(let r=0;r<3;r++){
           ctx.fillStyle=`rgba(255,${100+r*50},0,${0.7-r*0.2})`;
-          ctx.beginPath();
-          ctx.arc(d.x,d.y,10+r*12,0,Math.PI*2);
-          ctx.fill();
+          ctx.beginPath();ctx.arc(d.x,d.y,10+r*12,0,Math.PI*2);ctx.fill();
         }
         if(kosmikBall>=30){
           kosmikOyin=false;
           cancelAnimationFrame(animId);
           canvas.onmousemove=null;
           canvas.onclick=null;
+          // Backend ga golib saqlash
           const nom=localStorage.getItem('oyinchiNom')||'Noma\'lum';
-          const BIN_ID=localStorage.getItem('binId');
-          const MASTER_KEY='$2a$10$zgIWOwo7EwLF0YizkNjLxOSoil46/zMqKsmjQsMdwQtdAR7XSv.rS';
-          if(BIN_ID){
-            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{
-              headers:{'X-Master-Key':MASTER_KEY}
-            }).then(r=>r.json()).then(data=>{
-              const mal=data.record;
-              if(!mal.goliblar) mal.goliblar=[];
-              if(!mal.goliblar.includes(nom)) mal.goliblar.push(nom);
-              if(mal.irodasizlar) mal.irodasizlar=mal.irodasizlar.filter(n=>n!==nom);
-              return fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{
-                method:'PUT',
-                headers:{'Content-Type':'application/json','X-Master-Key':MASTER_KEY},
-                body:JSON.stringify(mal)
-              });
-            }).then(()=>{
-              otdiKo('🏆 BARCHA BOSQICH O\'TDI!','Siz haqiqiy g\'olibsiz!',
-                'Finalga o\'t 🌟',()=>window.location.href='final.html');
-            }).catch(()=>{
-              otdiKo('🏆 BARCHA BOSQICH O\'TDI!','Siz haqiqiy g\'olibsiz!',
-                'Finalga o\'t 🌟',()=>window.location.href='final.html');
-            });
-          } else {
+          fetch('/api/data',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({nom,bosqich:10,vaqt:0,qadam:0,golib:true})
+          }).then(()=>{
             otdiKo('🏆 BARCHA BOSQICH O\'TDI!','Siz haqiqiy g\'olibsiz!',
               'Finalga o\'t 🌟',()=>window.location.href='final.html');
-          }
+          }).catch(()=>{
+            otdiKo('🏆 BARCHA BOSQICH O\'TDI!','Siz haqiqiy g\'olibsiz!',
+              'Finalga o\'t 🌟',()=>window.location.href='final.html');
+          });
         }
         return false;
       }
@@ -617,84 +538,68 @@ function b3Loop(ts) {
     return !hit&&o.y>0;
   });
 
-  // Dushmanlar
   let pastaTushdi=false;
   kosmikDush=kosmikDush.filter(d=>{
     d.y+=d.tezlik;
-    // Dushman glow
-    ctx.shadowColor='#ff00ff';
-    ctx.shadowBlur=15;
-    ctx.fillStyle='#8800cc';
-    ctx.beginPath();ctx.arc(d.x,d.y,17,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#aa00ff';
+    ctx.shadowColor='#ff00ff';ctx.shadowBlur=12;
+    ctx.beginPath();ctx.arc(d.x,d.y,16,0,Math.PI*2);ctx.fill();
     ctx.shadowBlur=0;
-    ctx.font='22px Arial';
-    ctx.textAlign='center';
-    ctx.fillText('👾',d.x,d.y+8);
+    ctx.font='20px Arial';ctx.textAlign='center';
+    ctx.fillText('👾',d.x,d.y+7);
     if(d.y>H+20&&!pastaTushdi){
       pastaTushdi=true;
       kosmikOyin=false;
       cancelAnimationFrame(animId);
-      canvas.onmousemove=null;
-      canvas.onclick=null;
+      canvas.onmousemove=null;canvas.onclick=null;
       gameOverKo(`${kosmikBall} dushman yo'q qildingiz. 30 ta kerak edi!`,b3Boshlash);
       return false;
     }
     return d.y<=H+20;
   });
 
-  // Kema
-  ctx.shadowColor='#00ffff';
-  ctx.shadowBlur=20;
-  ctx.font='34px Arial';
-  ctx.textAlign='center';
+  ctx.font='34px Arial';ctx.textAlign='center';
+  ctx.shadowColor='#00ffff';ctx.shadowBlur=20;
   ctx.fillText('🚀',kosmikKema.x,H-38);
   ctx.shadowBlur=0;
 
-  // Hisob
-  ctx.fillStyle='rgba(0,0,0,0.7)';
+  ctx.fillStyle='rgba(0,0,0,0.6)';
   ctx.beginPath();ctx.roundRect(5,5,165,30,8);ctx.fill();
-  ctx.fillStyle='#ffd700';
-  ctx.font='bold 15px Arial';
-  ctx.textAlign='left';
+  ctx.fillStyle='#ffd700';ctx.font='bold 15px Arial';ctx.textAlign='left';
   ctx.fillText(`👾 ${kosmikBall} / 30`,12,26);
 
-  // PC uchun maslahat
-  ctx.fillStyle='rgba(255,255,255,0.35)';
-  ctx.font='11px Arial';
-  ctx.textAlign='right';
-  ctx.fillText('PC: ←→ harakat | SPACE otish | Sichqoncha bilan ham',W-8,H-8);
+  ctx.fillStyle='rgba(255,255,255,0.3)';
+  ctx.font='11px Arial';ctx.textAlign='right';
+  ctx.fillText('PC: ←→ harakat | SPACE otish',W-8,H-8);
 }
 
 // ========== KLAVIATURA ==========
-document.addEventListener('keydown', e=>{
+document.addEventListener('keydown',e=>{
   if(bosqich===1){
-    if(e.key==='ArrowUp'&&yon.y!==1) keyingiYon={x:0,y:-1};
-    if(e.key==='ArrowDown'&&yon.y!==-1) keyingiYon={x:0,y:1};
-    if(e.key==='ArrowLeft'&&yon.x!==1) keyingiYon={x:-1,y:0};
-    if(e.key==='ArrowRight'&&yon.x!==-1) keyingiYon={x:1,y:0};
+    if(e.key==='ArrowUp'&&yon.y!==1)keyingiYon={x:0,y:-1};
+    if(e.key==='ArrowDown'&&yon.y!==-1)keyingiYon={x:0,y:1};
+    if(e.key==='ArrowLeft'&&yon.x!==1)keyingiYon={x:-1,y:0};
+    if(e.key==='ArrowRight'&&yon.x!==-1)keyingiYon={x:1,y:0};
   }
   if(bosqich===2){
-    if(e.key==='ArrowLeft') pingChapBas=true;
-    if(e.key==='ArrowRight') pingOngBas=true;
+    if(e.key==='ArrowLeft')pingChapBas=true;
+    if(e.key==='ArrowRight')pingOngBas=true;
   }
   if(bosqich===3){
-    if(e.key==='ArrowLeft') kosmikChapBas=true;
-    if(e.key==='ArrowRight') kosmikOngBas=true;
-    if(e.key===' '){
-      e.preventDefault();
-      kosmikOtlar.push({x:kosmikKema.x, y:H-50});
-    }
+    if(e.key==='ArrowLeft')kosmikChapBas=true;
+    if(e.key==='ArrowRight')kosmikOngBas=true;
+    if(e.key===' '){e.preventDefault();kosmikOtlar.push({x:kosmikKema.x,y:H-50});}
   }
 });
 
-document.addEventListener('keyup', e=>{
+document.addEventListener('keyup',e=>{
   if(bosqich===2){
-    if(e.key==='ArrowLeft') pingChapBas=false;
-    if(e.key==='ArrowRight') pingOngBas=false;
+    if(e.key==='ArrowLeft')pingChapBas=false;
+    if(e.key==='ArrowRight')pingOngBas=false;
   }
   if(bosqich===3){
-    if(e.key==='ArrowLeft') kosmikChapBas=false;
-    if(e.key==='ArrowRight') kosmikOngBas=false;
+    if(e.key==='ArrowLeft')kosmikChapBas=false;
+    if(e.key==='ArrowRight')kosmikOngBas=false;
   }
 });
 </script>
