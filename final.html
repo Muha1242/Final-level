@@ -58,6 +58,7 @@
       background:rgba(255,255,255,0.04);
       border:2px solid rgba(255,215,0,0.3);
       border-radius:18px;padding:14px;
+      display:none;
     }
     .oyin-info {
       display:flex;justify-content:space-between;
@@ -150,7 +151,6 @@
 <div class="container">
   <div class="sarlavha">🌀 LABIRINT</div>
 
-  <!-- QOIDALAR -->
   <div class="qoida-wrap" id="qoidaWrap">
     <div class="qoida-sarlavha">📖 Qanday o'ynaladi?</div>
     <div class="qoida-item">
@@ -159,31 +159,30 @@
     </div>
     <div class="qoida-item">
       <div class="qoida-icon">🔴</div>
-      <div><b style="color:#ff4444">Qizil nuqta</b> — chiqish joyi. Lekin <b style="color:#ff8800">soxta chiqishlar</b> ham bor! To'g'risini toping!</div>
+      <div><b style="color:#ff4444">Qizil nuqtalar</b> — biri haqiqiy chiqish, qolganlari soxta. Qaysi biri ekanini o'zingiz toping!</div>
     </div>
     <div class="qoida-item">
       <div class="qoida-icon">🌑</div>
-      <div><b style="color:#ffd700">Qorong'i rejim</b> — faqat atrofingiz ko'rinadi. Labirintni xotirangizda saqlang!</div>
+      <div>Yuqori bosqichlarda <b style="color:#ffd700">qorong'i rejim</b> — faqat atrofingiz ko'rinadi!</div>
     </div>
     <div class="qoida-item">
       <div class="qoida-icon">⌨️</div>
       <div>PC: <b style="color:#ffd700">↑↓←→</b> klavishlar.<br>Telefon: pastdagi tugmalar yoki <b style="color:#ffd700">swipe</b>.</div>
     </div>
     <div class="qoida-item">
-      <div class="qoida-icon">📈</div>
-      <div>Har bosqichda labirint <b style="color:#ffd700">kattalashadi</b>, qorong'ilik <b style="color:#ff4444">kuchayadi</b>, soxta chiqishlar <b style="color:#ff8800">ko'payadi</b>!</div>
+      <div class="qoida-icon">⏱️</div>
+      <div>Vaqt chegarasi <b style="color:#00ff88">yo'q</b> — xotirjam o'ylang!</div>
     </div>
     <div class="qoida-item">
-      <div class="qoida-icon">⏱️</div>
-      <div>Vaqt chegarasi <b style="color:#00ff88">yo'q</b> — xotirjam o'ylang. Qancha vaqt ketgani saqlanadi!</div>
+      <div class="qoida-icon">🏆</div>
+      <div>Barcha <b style="color:#ffd700">10 bosqichni</b> tugatgan g'oliblar ro'yxatiga kiradi!</div>
     </div>
     <div style="text-align:center;margin-top:14px">
       <button class="btn" onclick="oyinBoshlash()">🚀 Boshlash!</button>
     </div>
   </div>
 
-  <!-- O'YIN -->
-  <div class="oyin-wrap" id="oyinWrap" style="display:none">
+  <div class="oyin-wrap" id="oyinWrap">
     <div class="oyin-info">
       <div>🎯 Bosqich: <span id="bosqichKo">1</span>/10</div>
       <div>⏱️ <span id="vaqtKo">0:00</span></div>
@@ -193,7 +192,7 @@
       <canvas id="labirint" width="360" height="360"></canvas>
       <div class="overlay" id="soxta">
         <h2 style="color:#ff8800">⚠️ Soxta chiqish!</h2>
-        <p>Bu haqiqiy chiqish emas!<br>Davom eting!</p>
+        <p>Bu haqiqiy chiqish emas!<br>Davom eting, to'g'risini toping!</p>
         <button class="btn" onclick="soxtaYop()">Davom et 💪</button>
       </div>
       <div class="overlay" id="bosqichOtdi">
@@ -223,7 +222,6 @@
     </div>
   </div>
 
-  <!-- STATISTIKA -->
   <div class="stat-wrap">
     <div class="stat-sarlavha">📊 STATISTIKA</div>
     <div class="stat-item"><div>👤 Oyinchi</div><span id="statNom">—</span></div>
@@ -233,7 +231,6 @@
     <div class="stat-item"><div>✅ Holat</div><span id="statHolat" style="color:#aaa">Kutilmoqda</span></div>
   </div>
 
-  <!-- LEADERBOARD -->
   <div class="lider-wrap">
     <div class="lider-sarlavha">🏅 G'OLIBLAR & PROGRESS</div>
     <div id="liderList">
@@ -241,7 +238,6 @@
     </div>
   </div>
 
-  <!-- MOTIVATSIYA -->
   <div id="motivatsiya" style="display:none;width:100%">
     <div class="tillar">
       <div class="karta">
@@ -277,10 +273,6 @@
 </div>
 
 <script>
-  const MASTER_KEY='$2a$10$zgIWOwo7EwLF0YizkNjLxOSoil46/zMqKsmjQsMdwQtdAR7XSv.rS';
-  const BIN_URL='https://api.jsonbin.io/v3/b';
-  let BIN_ID=localStorage.getItem('binId')||null;
-  let malumotar={irodasizlar:[],goliblar:[],progress:[]};
   const oyinchiNom=localStorage.getItem('oyinchiNom')||'';
   document.getElementById('statNom').textContent=oyinchiNom||'—';
 
@@ -301,7 +293,8 @@
   let konfettiAktiv=false;
   const kRanglar=['#ffd700','#ff6b6b','#00ff88','#00bfff','#ff69b4','#fff'];
   const zarralar=Array.from({length:120},()=>({
-    x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight-window.innerHeight,
+    x:Math.random()*window.innerWidth,
+    y:Math.random()*window.innerHeight-window.innerHeight,
     w:Math.random()*10+4,h:Math.random()*6+3,
     rang:kRanglar[Math.floor(Math.random()*kRanglar.length)],
     tezlik:Math.random()*2+1.5,burchak:Math.random()*Math.PI*2,
@@ -320,55 +313,59 @@
     requestAnimationFrame(kLoop);
   })();
 
-  // JSONBin
+  // ===== BACKEND =====
   async function malumotYukla(){
-    if(!BIN_ID){liderKo();return;}
     try{
-      const res=await fetch(`${BIN_URL}/${BIN_ID}/latest`,{headers:{'X-Master-Key':MASTER_KEY}});
+      const res=await fetch('/api/data');
       const data=await res.json();
-      malumotar=data.record;
-      if(!malumotar.progress)malumotar.progress=[];
-      if(!malumotar.goliblar)malumotar.goliblar=[];
-      if(!malumotar.irodasizlar)malumotar.irodasizlar=[];
-    }catch(e){}
-    liderKo();
+      liderKo(data);
+    }catch(e){
+      document.getElementById('liderList').innerHTML=
+        '<div style="text-align:center;color:#aaa;font-size:13px;padding:10px">⚠️ Yuklab bo\'lmadi</div>';
+    }
   }
 
-  async function malumotSaqla(){
-    if(!BIN_ID)return;
+  async function progressSaqla(nom,bosqich,vaqt,qadam){
     try{
-      await fetch(`${BIN_URL}/${BIN_ID}`,{
-        method:'PUT',
-        headers:{'Content-Type':'application/json','X-Master-Key':MASTER_KEY},
-        body:JSON.stringify(malumotar)
+      await fetch('/api/data',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({nom,bosqich,vaqt,qadam,golib:false})
       });
-    }catch(e){}
+      malumotYukla();
+    }catch(e){console.log(e);}
+  }
+
+  async function golibSaqla(nom,vaqt,qadam){
+    try{
+      await fetch('/api/data',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({nom,bosqich:10,vaqt,qadam,golib:true})
+      });
+      malumotYukla();
+    }catch(e){console.log(e);}
   }
 
   const medallar=['🥇','🥈','🥉','🏅','🏅','🏅','🏅','🏅','🏅','🏅'];
   function vaqtFormat(s){const d=Math.floor(s/60),sec=s%60;return `${d}:${sec<10?'0'+sec:sec}`;}
 
-  function liderKo(){
+  function liderKo(data){
     const div=document.getElementById('liderList');
-    const goliblar=malumotar.goliblar||[];
-    const progress=malumotar.progress||[];
-    const hammasi={};
-    progress.forEach(p=>{hammasi[p.nom]={nom:p.nom,bosqich:p.bosqich||0,vaqt:p.vaqt||0,qadam:p.qadam||0,golib:false};});
-    goliblar.forEach(g=>{
-      const nom=typeof g==='string'?g:g.nom;
-      if(hammasi[nom])hammasi[nom].golib=true;
-      else hammasi[nom]={nom,bosqich:10,vaqt:0,qadam:0,golib:true};
-    });
-    const list=Object.values(hammasi).sort((a,b)=>b.bosqich-a.bosqich||a.vaqt-b.vaqt);
-    if(list.length===0){
+    if(!data||data.length===0){
       div.innerHTML='<div style="text-align:center;color:#aaa;font-size:13px;padding:10px">Hali hech kim yo\'q!</div>';
       return;
     }
-    div.innerHTML=list.slice(0,10).map((o,i)=>`
+    const sorted=[...data].sort((a,b)=>b.bosqich-a.bosqich||a.vaqt-b.vaqt);
+    div.innerHTML=sorted.slice(0,10).map((o,i)=>`
       <div class="lider-item">
         <span class="lider-medal">${o.golib?medallar[i]:'🎮'}</span>
         <span class="lider-nom">${o.nom}</span>
-        <span class="lider-info">${o.golib?'✅ G\'olib':'📍 '+o.bosqich+'-bosqich'}<br>${o.vaqt?'⏱️ '+vaqtFormat(o.vaqt):''}${o.qadam?' 🚶'+o.qadam:''}</span>
+        <span class="lider-info">
+          ${o.golib?'✅ G\'olib':'📍 '+o.bosqich+'-bosqich'}<br>
+          ${o.vaqt?'⏱️ '+vaqtFormat(o.vaqt):''}
+          ${o.qadam?' 🚶'+o.qadam:''}
+        </span>
       </div>`).join('');
   }
 
@@ -377,34 +374,31 @@
   const ctx=canvas.getContext('2d');
   const CS=360;
 
-  // Bosqich config
   const CFG=[
-    {hajm:7, soxta:0, qorong:0},    // 1 — oson, hamma ko'rinadi
-    {hajm:9, soxta:1, qorong:0},    // 2
-    {hajm:11,soxta:1, qorong:0},    // 3
-    {hajm:11,soxta:2, qorong:2},    // 4 — ozgina qorong'i
-    {hajm:13,soxta:2, qorong:2.5},  // 5
-    {hajm:13,soxta:3, qorong:3},    // 6
-    {hajm:15,soxta:3, qorong:3.5},  // 7
-    {hajm:15,soxta:4, qorong:4},    // 8
-    {hajm:17,soxta:4, qorong:4.5},  // 9
-    {hajm:21,soxta:5, qorong:5},    // 10 — eng qiyin
+    {hajm:7, soxta:0, qorong:0},
+    {hajm:9, soxta:1, qorong:0},
+    {hajm:11,soxta:1, qorong:0},
+    {hajm:11,soxta:2, qorong:2},
+    {hajm:13,soxta:2, qorong:2.5},
+    {hajm:13,soxta:3, qorong:3},
+    {hajm:15,soxta:3, qorong:3.5},
+    {hajm:15,soxta:4, qorong:4},
+    {hajm:17,soxta:4, qorong:4.5},
+    {hajm:21,soxta:5, qorong:5},
   ];
 
   let joriyBosqich=1;
-  let labirintGrid=[], hajm=7, KH=0;
-  let oyX=1, oyY=1;
-  let chiqishX=0, chiqishY=0;
+  let labirintGrid=[],hajm=7,KH=0;
+  let oyX=1,oyY=1;
+  let chiqishX=0,chiqishY=0;
   let soxtalar=[];
-  let qadam=0, jamiQadam=0, engYuqori=0;
-  let boshlanganVaqt=null, umumiyVaqt=0, vaqtInterval=null;
+  let qadam=0,jamiQadam=0,engYuqori=0;
+  let boshlanganVaqt=null,umumiyVaqt=0,vaqtInterval=null;
   let oyinAktiv=false;
 
-  // Labirint yaratish
   function labirintYarat(n){
     hajm=n%2===0?n+1:n;
     labirintGrid=Array.from({length:hajm},()=>new Array(hajm).fill(1));
-
     function qazish(x,y){
       labirintGrid[y][x]=0;
       const dirs=[[0,-2],[0,2],[-2,0],[2,0]].sort(()=>Math.random()-0.5);
@@ -417,161 +411,124 @@
       });
     }
     qazish(1,1);
-
-    // Haqiqiy chiqish
-    chiqishX=hajm-2;
-    chiqishY=hajm-2;
+    chiqishX=hajm-2;chiqishY=hajm-2;
     labirintGrid[chiqishY][chiqishX]=0;
     labirintGrid[hajm-2][hajm-3]=0;
     labirintGrid[hajm-3][hajm-2]=0;
   }
 
-  // Soxta chiqishlar qo'shish
   function soxtalarQosh(son){
     soxtalar=[];
-    let urinish=0;
-    while(soxtalar.length<son&&urinish<200){
-      urinish++;
+    let ur=0;
+    while(soxtalar.length<son&&ur<300){
+      ur++;
       const x=Math.floor(Math.random()*(hajm-2))+1;
       const y=Math.floor(Math.random()*(hajm-2))+1;
       if(labirintGrid[y][x]===0&&
          !(x===chiqishX&&y===chiqishY)&&
          !(x===oyX&&y===oyY)&&
          !soxtalar.some(s=>s.x===x&&s.y===y)&&
-         (Math.abs(x-chiqishX)>3||Math.abs(y-chiqishY)>3)){
-
+         (Math.abs(x-chiqishX)>2||Math.abs(y-chiqishY)>2)){
         soxtalar.push({x,y});
       }
     }
   }
 
+  function qizilDoiraChiz(px,py,korinish){
+    ctx.shadowColor=`rgba(255,0,0,${korinish})`;
+    ctx.shadowBlur=18*korinish;
+    const grd=ctx.createRadialGradient(px+KH/2,py+KH/2,0,px+KH/2,py+KH/2,KH/2);
+    grd.addColorStop(0,`rgba(255,100,100,${korinish})`);
+    grd.addColorStop(1,`rgba(200,0,0,${korinish})`);
+    ctx.fillStyle=grd;
+    ctx.beginPath();
+    ctx.arc(px+KH/2,py+KH/2,KH/2-1,0,Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur=0;
+  }
+
   function labirintChiz(){
     const cfg=CFG[joriyBosqich-1];
     KH=Math.floor(CS/hajm);
-    const ox=Math.floor((CS-KH*hajm)/2);
-    const oy2=Math.floor((CS-KH*hajm)/2);
+    const ofX=Math.floor((CS-KH*hajm)/2);
+    const ofY=Math.floor((CS-KH*hajm)/2);
 
     ctx.fillStyle='#050510';
     ctx.fillRect(0,0,CS,CS);
 
-    // Qorong'ilik radiusi
-    const qRadius=cfg.qorong>0?(cfg.qorong*KH):CS;
+    const qRadius=cfg.qorong>0?(cfg.qorong*KH):CS*2;
 
     for(let y=0;y<hajm;y++){
       for(let x=0;x<hajm;x++){
-        const px=ox+x*KH;
-        const py=oy2+y*KH;
-
-        // Qorong'ilik masofasi
-        const distX=(x-oyX)*KH;
-        const distY=(y-oyY)*KH;
-        const dist=Math.sqrt(distX*distX+distY*distY);
-        const korinish=cfg.qorong>0?Math.max(0,1-dist/(qRadius)):1;
-
-        if(korinish<=0.02) continue;
+        const px=ofX+x*KH;
+        const py=ofY+y*KH;
+        const dX=(x-oyX)*KH,dY=(y-oyY)*KH;
+        const dist=Math.sqrt(dX*dX+dY*dY);
+        const korinish=cfg.qorong>0?Math.max(0,1-dist/qRadius):1;
+        if(korinish<=0.02)continue;
 
         if(labirintGrid[y][x]===1){
-          // Devor — to'q ko'k-yashil rang
-          const alpha=korinish;
-          ctx.fillStyle=`rgba(20,60,80,${alpha})`;
+          ctx.fillStyle=`rgba(20,60,80,${korinish})`;
           ctx.fillRect(px,py,KH,KH);
-          // Devor cheti — yashilroq
-          ctx.strokeStyle=`rgba(0,180,120,${alpha*0.4})`;
+          ctx.strokeStyle=`rgba(0,180,120,${korinish*0.4})`;
           ctx.lineWidth=1;
           ctx.strokeRect(px+0.5,py+0.5,KH-1,KH-1);
-          // Ichki yog'du
-          ctx.fillStyle=`rgba(0,255,160,${alpha*0.06})`;
+          ctx.fillStyle=`rgba(0,255,160,${korinish*0.06})`;
           ctx.fillRect(px+1,py+1,KH-2,3);
           ctx.fillRect(px+1,py+1,3,KH-2);
-        } else {
-          // Yo'l
-          const alpha=korinish;
-          ctx.fillStyle=`rgba(8,8,25,${alpha})`;
+        }else{
+          ctx.fillStyle=`rgba(8,8,25,${korinish})`;
           ctx.fillRect(px,py,KH,KH);
         }
       }
     }
 
-    // Soxta chiqishlar
     soxtalar.forEach(s=>{
-      const px=ox+s.x*KH;
-      const py=oy2+s.y*KH;
-      const distX=(s.x-oyX)*KH;
-      const distY=(s.y-oyY)*KH;
-      const dist=Math.sqrt(distX*distX+distY*distY);
-      const korinish=cfg.qorong>0?Math.max(0,1-dist/(qRadius)):1;
+      const px=ofX+s.x*KH;
+      const py=ofY+s.y*KH;
+      const dX=(s.x-oyX)*KH,dY=(s.y-oyY)*KH;
+      const dist=Math.sqrt(dX*dX+dY*dY);
+      const korinish=cfg.qorong>0?Math.max(0,1-dist/qRadius):1;
       if(korinish<=0.05)return;
-
-      ctx.shadowColor='#ff6600';
-      ctx.shadowBlur=12*korinish;
-      const grd=ctx.createRadialGradient(px+KH/2,py+KH/2,0,px+KH/2,py+KH/2,KH/2);
-      grd.addColorStop(0,`rgba(255,120,0,${korinish})`);
-      grd.addColorStop(1,`rgba(200,50,0,${korinish})`);
-      ctx.fillStyle=grd;
-      ctx.beginPath();
-      ctx.arc(px+KH/2,py+KH/2,KH/2-1,0,Math.PI*2);
-      ctx.fill();
-      ctx.shadowBlur=0;
-
-      // Hech qanday belgi yo'q — haqiqiy bilan bir xil
+      qizilDoiraChiz(px,py,korinish);
     });
 
-    // Haqiqiy chiqish
     {
-      const px=ox+chiqishX*KH;
-      const py=oy2+chiqishY*KH;
-      const distX=(chiqishX-oyX)*KH;
-      const distY=(chiqishY-oyY)*KH;
-      const dist=Math.sqrt(distX*distX+distY*distY);
-      const korinish=cfg.qorong>0?Math.max(0,1-dist/(qRadius)):1;
+      const px=ofX+chiqishX*KH;
+      const py=ofY+chiqishY*KH;
+      const dX=(chiqishX-oyX)*KH,dY=(chiqishY-oyY)*KH;
+      const dist=Math.sqrt(dX*dX+dY*dY);
+      const korinish=cfg.qorong>0?Math.max(0,1-dist/qRadius):1;
+      if(korinish>0.05)qizilDoiraChiz(px,py,korinish);
+    }
 
-      if(korinish>0.05){
-        ctx.shadowColor='#ff0000';
-        ctx.shadowBlur=20*korinish;
-        const grd=ctx.createRadialGradient(px+KH/2,py+KH/2,0,px+KH/2,py+KH/2,KH/2);
-        grd.addColorStop(0,`rgba(255,100,100,${korinish})`);
-        grd.addColorStop(1,`rgba(200,0,0,${korinish})`);
-        ctx.fillStyle=grd;
-        ctx.beginPath();
-        ctx.arc(px+KH/2,py+KH/2,KH/2-1,0,Math.PI*2);
-        ctx.fill();
-        ctx.shadowBlur=0;
-
-    // O'yinchi
     {
-      const px=ox+oyX*KH;
-      const py=oy2+oyY*KH;
+      const px=ofX+oyX*KH;
+      const py=ofY+oyY*KH;
       const grd=ctx.createRadialGradient(px+KH/2,py+KH/2,0,px+KH/2,py+KH/2,KH/2);
       grd.addColorStop(0,'#88ddff');
       grd.addColorStop(1,'#0066ff');
       ctx.fillStyle=grd;
-      ctx.shadowColor='#4488ff';
-      ctx.shadowBlur=20;
-      ctx.beginPath();
-      ctx.arc(px+KH/2,py+KH/2,KH/2-1,0,Math.PI*2);
-      ctx.fill();
+      ctx.shadowColor='#4488ff';ctx.shadowBlur=20;
+      ctx.beginPath();ctx.arc(px+KH/2,py+KH/2,KH/2-1,0,Math.PI*2);ctx.fill();
       ctx.shadowBlur=0;
     }
 
-    // Qorong'i qoplama
     if(cfg.qorong>0){
-      const cx=ox+oyX*KH+KH/2;
-      const cy=oy2+oyY*KH+KH/2;
-      const grd=ctx.createRadialGradient(cx,cy,qRadius*0.7,cx,cy,qRadius*1.8);
+      const cx=ofX+oyX*KH+KH/2;
+      const cy=ofY+oyY*KH+KH/2;
+      const grd=ctx.createRadialGradient(cx,cy,qRadius*0.6,cx,cy,qRadius*1.8);
       grd.addColorStop(0,'rgba(0,0,0,0)');
-      grd.addColorStop(1,'rgba(0,0,0,0.97)');
+      grd.addColorStop(1,'rgba(0,0,0,0.98)');
       ctx.fillStyle=grd;
       ctx.fillRect(0,0,CS,CS);
     }
 
-    // Info
     ctx.fillStyle='rgba(0,0,0,0.7)';
-    ctx.beginPath();ctx.roundRect(5,5,185,26,6);ctx.fill();
-    ctx.fillStyle='#ffd700';
-    ctx.font='bold 12px Arial';
-    ctx.textAlign='left';
+    ctx.beginPath();ctx.roundRect(5,5,200,26,6);ctx.fill();
+    ctx.fillStyle='#ffd700';ctx.font='bold 12px Arial';ctx.textAlign='left';
     const vO=Math.floor((Date.now()-boshlanganVaqt)/1000)+umumiyVaqt;
-    ctx.fillText(`⏱️ ${vaqtFormat(vO)}  🚶 ${qadam}  👁️ ${cfg.qorong>0?'Qorong\'i':'To\'liq'}`,10,21);
+    ctx.fillText(`⏱️ ${vaqtFormat(vO)}  🚶 ${qadam}  🔴 ${soxtalar.length+1} ta`,10,21);
   }
 
   function harakat(dx,dy){
@@ -579,22 +536,18 @@
     const nx=oyX+dx,ny=oyY+dy;
     if(nx<0||nx>=hajm||ny<0||ny>=hajm)return;
     if(labirintGrid[ny][nx]===1)return;
-
     oyX=nx;oyY=ny;
     qadam++;jamiQadam++;
     document.getElementById('qadamKo').textContent=qadam;
     document.getElementById('statQadam').textContent=jamiQadam;
     labirintChiz();
 
-    // Soxta chiqishga yetdimi?
-    const soxtaMi=soxtalar.some(s=>s.x===oyX&&s.y===oyY);
-    if(soxtaMi){
+    if(soxtalar.some(s=>s.x===oyX&&s.y===oyY)){
       oyinAktiv=false;
       document.getElementById('soxta').style.display='block';
       return;
     }
 
-    // Haqiqiy chiqishga yetdimi?
     if(oyX===chiqishX&&oyY===chiqishY){
       bosqichOtdi();
     }
@@ -602,7 +555,6 @@
 
   function soxtaYop(){
     document.getElementById('soxta').style.display='none';
-    // Soxtani o'chirish — qayta bormaydi
     soxtalar=soxtalar.filter(s=>!(s.x===oyX&&s.y===oyY));
     oyinAktiv=true;
     labirintChiz();
@@ -611,13 +563,11 @@
   function bosqichOtdi(){
     oyinAktiv=false;
     const vO=Math.floor((Date.now()-boshlanganVaqt)/1000)+umumiyVaqt;
-
     if(joriyBosqich>engYuqori){
       engYuqori=joriyBosqich;
       document.getElementById('statBosqich').textContent=engYuqori+'/10';
-      progressSaqla();
+      if(oyinchiNom) progressSaqla(oyinchiNom,engYuqori,vO,jamiQadam);
     }
-
     if(joriyBosqich>=10){
       konfettiAktiv=true;
       clearInterval(vaqtInterval);
@@ -628,7 +578,7 @@
         `Barcha 10 bosqichni yechdingiz! ⏱️ ${vaqtFormat(vO)} | 🚶 ${jamiQadam} qadam`;
       if(oyinchiNom)document.getElementById('nomInput').value=oyinchiNom;
       document.getElementById('motivatsiya').style.display='block';
-    } else {
+    }else{
       document.getElementById('bosqichOtdiGap').textContent=
         `${joriyBosqich}-bosqich: ⏱️ ${vaqtFormat(vO)} | 🚶 ${qadam} qadam`;
       document.getElementById('bosqichOtdi').style.display='block';
@@ -646,8 +596,7 @@
     const cfg=CFG[joriyBosqich-1];
     labirintYarat(cfg.hajm);
     soxtalarQosh(cfg.soxta);
-    oyX=1;oyY=1;
-    qadam=0;
+    oyX=1;oyY=1;qadam=0;
     document.getElementById('qadamKo').textContent=0;
     oyinAktiv=true;
     labirintChiz();
@@ -656,7 +605,12 @@
   function oyinBoshlash(){
     document.getElementById('qoidaWrap').style.display='none';
     document.getElementById('oyinWrap').style.display='block';
+    joriyBosqich=1;
+    jamiQadam=0;
+    engYuqori=0;
+    umumiyVaqt=0;
     boshlanganVaqt=Date.now();
+    clearInterval(vaqtInterval);
     vaqtInterval=setInterval(()=>{
       if(!boshlanganVaqt)return;
       const o=Math.floor((Date.now()-boshlanganVaqt)/1000)+umumiyVaqt;
@@ -667,7 +621,6 @@
     yangiLabirint();
   }
 
-  // Tugmalar
   document.getElementById('btnYuqori').onclick=()=>harakat(0,-1);
   document.getElementById('btnPast').onclick=()=>harakat(0,1);
   document.getElementById('btnChap').onclick=()=>harakat(-1,0);
@@ -677,7 +630,6 @@
   document.getElementById('btnChap').ontouchstart=(e)=>{e.preventDefault();harakat(-1,0);};
   document.getElementById('btnOng').ontouchstart=(e)=>{e.preventDefault();harakat(1,0);};
 
-  // Klaviatura
   document.addEventListener('keydown',e=>{
     if(e.key==='ArrowUp'){e.preventDefault();harakat(0,-1);}
     if(e.key==='ArrowDown'){e.preventDefault();harakat(0,1);}
@@ -685,7 +637,6 @@
     if(e.key==='ArrowRight'){e.preventDefault();harakat(1,0);}
   });
 
-  // Swipe
   let tX=0,tY=0;
   canvas.addEventListener('touchstart',e=>{tX=e.touches[0].clientX;tY=e.touches[0].clientY;},{passive:true});
   canvas.addEventListener('touchend',e=>{
@@ -695,39 +646,16 @@
     else{dy>20?harakat(0,1):dy<-20?harakat(0,-1):null;}
   },{passive:true});
 
-  async function progressSaqla(){
-    if(!oyinchiNom||!BIN_ID)return;
-    const vO=Math.floor((Date.now()-boshlanganVaqt)/1000)+umumiyVaqt;
-    const yangi={nom:oyinchiNom,bosqich:engYuqori,vaqt:vO,qadam:jamiQadam};
-    const idx=malumotar.progress.findIndex(p=>p.nom===oyinchiNom);
-    if(idx>=0){if(engYuqori>=malumotar.progress[idx].bosqich)malumotar.progress[idx]=yangi;}
-    else malumotar.progress.push(yangi);
-    await malumotSaqla();
-    liderKo();
-  }
-
   async function goliblarQosh(){
     const nom=document.getElementById('nomInput').value.trim();
-    if(!nom||!/^[\w\u0400-\u04FF]{3,20}$/.test(nom)){
+    if(!nom||nom.length<3){
       document.getElementById('nomInput').style.border='1px solid red';
       return;
     }
-    const mavjud=malumotar.goliblar.some(g=>(typeof g==='string'?g:g.nom)===nom);
-    if(mavjud){
-      document.getElementById('nomQoshWrap').innerHTML=
-        `<p style="color:#ffd700;font-size:14px">⚠️ ${nom} allaqachon g'oliblar ro'yxatida!</p>`;
-      return;
-    }
     const vO=Math.floor((Date.now()-boshlanganVaqt)/1000)+umumiyVaqt;
-    malumotar.goliblar.push({nom,vaqt:vO,qadam:jamiQadam});
-    malumotar.irodasizlar=malumotar.irodasizlar.filter(n=>n!==nom);
-    const idx=malumotar.progress.findIndex(p=>p.nom===nom);
-    if(idx>=0)malumotar.progress[idx].bosqich=10;
-    else malumotar.progress.push({nom,bosqich:10,vaqt:vO,qadam:jamiQadam});
-    await malumotSaqla();
+    await golibSaqla(nom,vO,jamiQadam);
     document.getElementById('nomQoshWrap').innerHTML=
       `<p style="color:#00ff88;font-size:15px;font-weight:bold">✅ ${nom}, g'oliblar ro'yxatidasiz! 🎉</p>`;
-    liderKo();
   }
 
   malumotYukla();
