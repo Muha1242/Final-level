@@ -147,10 +147,6 @@
   </div>
 
 <script>
-  const MASTER_KEY = '$2a$10$zgIWOwo7EwLF0YizkNjLxOSoil46/zMqKsmjQsMdwQtdAR7XSv.rS';
-  const BIN_URL = 'https://api.jsonbin.io/v3/b';
-  let BIN_ID = localStorage.getItem('binId') || null;
-
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
   const W = 360, H = 540;
@@ -163,76 +159,49 @@
   let animId, dushmanInterval, ballInterval;
   let oxirgiVaqt = 0;
   let oyinchiNom = '';
-  let malumotar = { irodasizlar: [], goliblar: [] };
 
-  // ===== JSONBin =====
+  // ===== BACKEND =====
   async function malumotYukla() {
     try {
-      if (!BIN_ID) {
-        // Yangi bin yaratish
-        const res = await fetch(BIN_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': MASTER_KEY,
-            'X-Bin-Name': 'oyinchilar'
-          },
-          body: JSON.stringify({ irodasizlar: [], goliblar: [] })
-        });
-        const data = await res.json();
-        BIN_ID = data.metadata.id;
-        localStorage.setItem('binId', BIN_ID);
-      } else {
-        const res = await fetch(`${BIN_URL}/${BIN_ID}/latest`, {
-          headers: { 'X-Master-Key': MASTER_KEY }
-        });
-        const data = await res.json();
-        malumotar = data.record;
-      }
+      const res = await fetch('/api/data');
+      const data = await res.json();
+      irodasizlarKo(data);
     } catch(e) {
-      console.log('Yuklash xatosi:', e);
-    }
-    irodasizlarKo();
-  }
-
-  async function malumotSaqla() {
-    if (!BIN_ID) return;
-    try {
-      await fetch(`${BIN_URL}/${BIN_ID}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Master-Key': MASTER_KEY
-        },
-        body: JSON.stringify(malumotar)
-      });
-    } catch(e) {
-      console.log('Saqlash xatosi:', e);
+      document.getElementById('irodasizlarRoyxat').innerHTML =
+        '<div class="royxat-item">😔 Hali hech kim yo\'q...</div>';
     }
   }
 
-  function irodasizlarKo() {
+  function irodasizlarKo(data) {
     const div = document.getElementById('irodasizlarRoyxat');
-    const list = malumotar.irodasizlar || [];
+    const list = (data || []).filter(d => !d.golib && d.bosqich === 0);
     if (list.length === 0) {
       div.innerHTML = '<div class="royxat-item">😔 Hali hech kim yo\'q...</div>';
     } else {
       div.innerHTML = list.slice(-8).reverse()
-        .map(n => `<div class="royxat-item">😔 ${n}</div>`).join('');
+        .map(n => `<div class="royxat-item">😔 ${n.nom}</div>`).join('');
     }
   }
 
   async function irodasizlarQosh(nom) {
     if (!nom) return;
-    if (!malumotar.irodasizlar.includes(nom)) {
-      malumotar.irodasizlar.push(nom);
-      await malumotSaqla();
-    }
+    try {
+      await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nom, bosqich: 0, vaqt: 0, qadam: 0, golib: false })
+      });
+    } catch(e) { console.log(e); }
   }
 
   async function irodasizlarOchir(nom) {
-    malumotar.irodasizlar = malumotar.irodasizlar.filter(n => n !== nom);
-    await malumotSaqla();
+    try {
+      await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nom, bosqich: 0, vaqt: 0, qadam: 0, golib: false, ochir: true })
+      });
+    } catch(e) { console.log(e); }
   }
 
   function nomSorovKo() {
@@ -243,22 +212,21 @@
 
   function oyinBoshlash() {
     const nom = document.getElementById('nomInput').value.trim();
-    if (!nom) {
+    if (!nom || nom.length < 3) {
       document.getElementById('nomInput').style.border = '1px solid red';
       return;
     }
     oyinchiNom = nom;
     localStorage.setItem('oyinchiNom', nom);
-    localStorage.setItem('binId', BIN_ID);
     document.getElementById('nomSorov').style.display = 'none';
     boshlash();
   }
 
   function chiqibKet() {
+    if (oyinchiNom) irodasizlarQosh(oyinchiNom);
     window.location.href = 'about:blank';
   }
 
-  // ===== YO'L =====
   function yolChiz() {
     ctx.fillStyle = '#2a2a2a';
     ctx.fillRect(0,0,W,H);
@@ -278,7 +246,6 @@
     }
   }
 
-  // ===== MASHINA =====
   function mashinaChiz() {
     ctx.fillStyle = '#e74c3c';
     ctx.beginPath();
@@ -299,7 +266,6 @@
     ctx.fillRect(mashinaX+MK-9, MASHINA_Y-MB/2, 7, 4);
   }
 
-  // ===== DUSHMAN =====
   function dushmanChiz(d) {
     const ranglar = ['#3498db','#9b59b6','#e67e22','#1abc9c','#e91e63'];
     ctx.fillStyle = ranglar[d.rang];
@@ -393,14 +359,11 @@
     clearInterval(ballInterval);
     if (yutdimi) {
       await irodasizlarOchir(oyinchiNom);
-      localStorage.setItem('yutgan', oyinchiNom);
-      localStorage.setItem('binId', BIN_ID);
       document.getElementById('yutish').style.display='block';
     } else {
       await irodasizlarQosh(oyinchiNom);
       document.getElementById('yakuniyBall').textContent=ball;
       document.getElementById('gameOver').style.display='block';
-      irodasizlarKo();
     }
   }
 
