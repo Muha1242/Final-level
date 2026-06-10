@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Final — Labirint</title>
+  <title>Final — O'yinlar Portali</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -28,7 +28,7 @@
       align-items:center;gap:12px;
     }
     .sarlavha {
-      font-size:22px;font-weight:bold;
+      font-size:24px;font-weight:bold;
       color:#ffd700;text-align:center;
       animation:porlash 1.5s infinite alternate;
       margin-top:10px;
@@ -37,11 +37,32 @@
       from{text-shadow:0 0 8px #ffd700;}
       to{text-shadow:0 0 25px #ff6b6b,0 0 50px #ffd700;}
     }
+    
+    /* O'yin Tanlash Menyusi */
+    .menu-wrap {
+      width:100%;
+      background:rgba(255,255,255,0.05);
+      border:2px solid rgba(255,215,0,0.3);
+      border-radius:18px; padding:20px;
+      text-align:center;
+    }
+    .menu-sarlavha { font-size:18px; color:#ffd700; font-weight:bold; margin-bottom:15px; }
+    .menu-btn {
+      width:100%; padding:15px; margin-bottom:10px;
+      font-size:16px; font-weight:bold; color:white;
+      border:none; border-radius:12px; cursor:pointer;
+      transition: 0.2s;
+    }
+    .btn-labirint { background: linear-gradient(45deg, #4488ff, #00cc66); }
+    .btn-ikkinchi { background: linear-gradient(45deg, #ff6b6b, #ff8800); }
+    .menu-btn:hover { transform: scale(1.02); }
+
     .qoida-wrap {
       width:100%;
       background:rgba(255,215,0,0.07);
       border:1px solid rgba(255,215,0,0.3);
       border-radius:18px;padding:18px;
+      display:none;
     }
     .qoida-sarlavha {
       font-size:16px;color:#ffd700;
@@ -53,6 +74,7 @@
       font-size:13px;color:#ddd;line-height:1.6;
     }
     .qoida-icon{font-size:20px;min-width:28px;}
+    
     .oyin-wrap {
       width:100%;
       background:rgba(255,255,255,0.04);
@@ -69,6 +91,7 @@
       border:3px solid #ffd700;
       border-radius:10px;display:block;
       margin:0 auto;
+      background: #050510;
     }
     .harakat-wrap {
       display:flex;flex-direction:column;
@@ -95,25 +118,14 @@
     }
     .overlay h2{font-size:22px;margin-bottom:8px;}
     .overlay p{font-size:13px;margin-bottom:12px;line-height:1.7;color:#aaa;}
+    
     .btn {
       padding:11px 22px;font-size:15px;
       background:linear-gradient(45deg,#ff6b6b,#ffd700);
       border:none;border-radius:25px;
       cursor:pointer;color:white;font-weight:bold;margin:4px;
     }
-    .btn-green {
-      padding:11px 22px;font-size:15px;
-      background:linear-gradient(45deg,#00cc66,#00ff88);
-      border:none;border-radius:25px;
-      cursor:pointer;color:#000;font-weight:bold;margin:4px;
-    }
-    .nom-input {
-      width:100%;padding:10px;border-radius:10px;
-      border:1px solid #ffd700;
-      background:rgba(255,255,255,0.08);
-      color:white;font-size:15px;
-      text-align:center;outline:none;margin-bottom:10px;
-    }
+    
     .stat-wrap {
       width:100%;background:rgba(255,255,255,0.04);
       border:1px solid rgba(255,255,255,0.1);
@@ -123,6 +135,7 @@
     .stat-item{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);color:#ccc;}
     .stat-item:last-child{border-bottom:none;}
     .stat-item span{color:white;font-weight:bold;}
+    
     .lider-wrap {
       width:100%;background:rgba(255,215,0,0.05);
       border:1px solid rgba(255,215,0,0.2);
@@ -133,57 +146,49 @@
     .lider-medal{font-size:18px;min-width:25px;}
     .lider-nom{flex:1;font-weight:bold;}
     .lider-info{font-size:11px;color:#aaa;text-align:right;}
-    .tillar{width:100%;display:flex;flex-direction:column;gap:10px;}
-    .karta{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px 16px;opacity:0;transform:translateY(15px);animation:kartaKirish 0.6s ease forwards;}
-    .karta:nth-child(1){animation-delay:0.1s;}
-    .karta:nth-child(2){animation-delay:0.3s;}
-    .karta:nth-child(3){animation-delay:0.5s;}
-    @keyframes kartaKirish{to{opacity:1;transform:translateY(0);}}
-    .til-nom{font-size:11px;color:#ffd700;letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
-    .til-gap{font-size:13px;line-height:1.8;color:#ddd;}
-    .til-gap b{color:#ffd700;}
-    .yulduz-fon{position:fixed;border-radius:50%;background:white;pointer-events:none;animation:yYon 3s infinite alternate;}
-    @keyframes yYon{from{opacity:0.1;}to{opacity:0.7;}}
-    .motiv-rasm {
-      width:100%;border-radius:18px;overflow:hidden;
-      margin-bottom:12px;
-      box-shadow:0 0 30px rgba(255,215,0,0.3);
-    }
-    .motiv-rasm img {
-      width:100%;display:block;border-radius:18px;
-    }
+    
+    /* Labirint Final qismi */
+    #motivatsiya { display:none; width:100%; }
+    .tillar { display:flex; flex-direction:column; gap:10px; }
+    .karta { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:14px 16px; }
+    .til-nom { font-size:11px; color:#ffd700; letter-spacing:2px; text-transform:uppercase; margin-bottom:7px; }
+    .til-gap { font-size:13px; line-height:1.8; color:#ddd; }
+    .til-gap b { color:#ffd700; }
+    .motiv-rasm { width:100%; border-radius:18px; overflow:hidden; margin-bottom:12px; box-shadow:0 0 30px rgba(255,215,0,0.3); }
+    .motiv-rasm img { width:100%; display:block; border-radius:18px; }
+    
+    /* Ikkinchi o'yin final qismi */
+    #ikkinchiFinal { display:none; width:100%; text-align:center; }
+    .xafa-bulma { font-size:24px; font-weight:bold; color:#ffd700; margin-top:15px; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+
+    .yulduz-fon { position:fixed; border-radius:50%; background:white; pointer-events:none; animation:yYon 3s infinite alternate; }
+    @keyframes yYon { from{opacity:0.1;} to{opacity:0.7;} }
   </style>
 </head>
 <body>
 <canvas id="konfetti"></canvas>
 <div class="container">
-  <div class="sarlavha">🌀 LABIRINT</div>
+  <div class="sarlavha">🌀 O'YINLAR PORTALI</div>
+
+  <div class="menu-wrap" id="boshMenu">
+    <div class="menu-sarlavha">🎮 O'yinlardan birini tanlang:</div>
+    <button class="menu-btn btn-labirint" onclick="tanlaOyin('labirint')">🌀 1-O'yin: Labirint</button>
+    <button class="menu-btn btn-ikkinchi" onclick="tanlaOyin('parvoz')">🚀 2-O'yin: Fazoviy Parvoz (Qiyin)</button>
+  </div>
 
   <div class="qoida-wrap" id="qoidaWrap">
     <div class="qoida-sarlavha">📖 Qanday o'ynaladi?</div>
     <div class="qoida-item">
       <div class="qoida-icon">🔵</div>
-      <div>Siz <b style="color:#4488ff">ko'k nuqta</b>siz. Labirint ichida yursiz.</div>
+      <div>Siz <b style="color:#4488ff">ko'k nuqta</b>siz. Labirint ichida yurasiz.</div>
     </div>
     <div class="qoida-item">
       <div class="qoida-icon">🔴</div>
-      <div><b style="color:#ff4444">Qizil nuqtalar</b> — biri haqiqiy chiqish, qolganlari soxta. Qaysi biri ekanini o'zingiz toping!</div>
+      <div><b style="color:#ff4444">Qizil nuqtalar</b> — biri haqiqiy chiqish, qolganlari soxta.</div>
     </div>
     <div class="qoida-item">
       <div class="qoida-icon">🌑</div>
       <div>Yuqori bosqichlarda <b style="color:#ffd700">qorong'i rejim</b> — faqat atrofingiz ko'rinadi!</div>
-    </div>
-    <div class="qoida-item">
-      <div class="qoida-icon">⌨️</div>
-      <div>PC: <b style="color:#ffd700">↑↓←→</b> klavishlar.<br>Telefon: pastdagi tugmalar yoki <b style="color:#ffd700">swipe</b>.</div>
-    </div>
-    <div class="qoida-item">
-      <div class="qoida-icon">⏱️</div>
-      <div>Vaqt chegarasi <b style="color:#00ff88">yo'q</b> — xotirjam o'ylang!</div>
-    </div>
-    <div class="qoida-item">
-      <div class="qoida-icon">🏆</div>
-      <div>Barcha <b style="color:#ffd700">10 bosqichni</b> tugatgan g'oliblar ro'yxatiga kiradi!</div>
     </div>
     <div style="text-align:center;margin-top:14px">
       <button class="btn" onclick="oyinBoshlash()">🚀 Boshlash!</button>
@@ -192,33 +197,27 @@
 
   <div class="oyin-wrap" id="oyinWrap">
     <div class="oyin-info">
-      <div>🎯 Bosqich: <span id="bosqichKo">1</span>/10</div>
+      <div>🎯 Rejim: <span id="bosqichKo">1</span>/10</div>
       <div>⏱️ <span id="vaqtKo">0:00</span></div>
-      <div>🚶 <span id="qadamKo">0</span></div>
+      <div>🚶 Ball/Qadam: <span id="qadamKo">0</span></div>
     </div>
     <div style="position:relative">
       <canvas id="labirint" width="360" height="360"></canvas>
+      
       <div class="overlay" id="soxta">
         <h2 style="color:#ff8800">⚠️ Soxta chiqish!</h2>
         <p>Bu haqiqiy chiqish emas!<br>Davom eting, to'g'risini toping!</p>
         <button class="btn" onclick="soxtaYop()">Davom et 💪</button>
       </div>
+      
       <div class="overlay" id="bosqichOtdi">
         <h2 style="color:#00ff88">🎉 Zo'r!</h2>
         <p id="bosqichOtdiGap"></p>
         <button class="btn" onclick="keyingiBosqich()">Davom et →</button>
       </div>
-      <div class="overlay" id="yutishPanel">
-        <h2 style="color:#ffd700">🏆 G'OLIB!</h2>
-        <p id="yutishGap"></p>
-        <div id="nomQoshWrap">
-          <input class="nom-input" id="nomInput" type="text"
-            maxlength="20" placeholder="Ismingizni kiriting...">
-          <button class="btn-green" onclick="goliblarQosh()">✅ Ro'yxatga kirish</button>
-        </div>
-      </div>
     </div>
-    <div class="harakat-wrap">
+    
+    <div class="harakat-wrap" id="boshqaruvLabirint" style="display:none;">
       <div class="h-qator">
         <button class="h-btn" id="btnYuqori">⬆️</button>
       </div>
@@ -228,72 +227,69 @@
         <button class="h-btn" id="btnOng">➡️</button>
       </div>
     </div>
+    <div class="harakat-wrap" id="boshqaruvParvoz" style="display:none;">
+      <button class="h-btn" id="btnSakrash" style="width:180px; font-weight:bold; background:#ff6b6b;">🚀 SAKRASH</button>
+    </div>
   </div>
 
-  <div class="stat-wrap">
+  <div class="stat-wrap" id="statistikaOyna">
     <div class="stat-sarlavha">📊 STATISTIKA</div>
-    <div class="stat-item"><div>👤 Oyinchi</div><span id="statNom">—</span></div>
+    <div class="stat-item"><div>👤 Oyinchi</div><span id="statNom">O'yinchi</span></div>
     <div class="stat-item"><div>⏱️ Umumiy vaqt</div><span id="statVaqt">0:00</span></div>
     <div class="stat-item"><div>🎯 Eng yuqori bosqich</div><span id="statBosqich">0/10</span></div>
-    <div class="stat-item"><div>🚶 Jami qadam</div><span id="statQadam">0</span></div>
+    <div class="stat-item"><div>🚶 Jami qadam / Ball</div><span id="statQadam">0</span></div>
     <div class="stat-item"><div>✅ Holat</div><span id="statHolat" style="color:#aaa">Kutilmoqda</span></div>
   </div>
 
-  <div class="lider-wrap">
-    <div class="lider-sarlavha">🏅 G'OLIBLAR & PROGRESS</div>
-    <div id="liderList">
-      <div style="text-align:center;color:#aaa;font-size:13px;padding:10px">⏳ Yuklanmoqda...</div>
-    </div>
+  <div class="lider-wrap" id="liderOyna">
+    <div class="lider-sarlavha">🏅 SO'NGI NATIJALAR</div>
+    <div id="liderList"></div>
   </div>
 
-  <div id="motivatsiya" style="display:none;width:100%">
-    <!-- RASM -->
+  <div id="motivatsiya">
     <div class="motiv-rasm">
-      <img src="https://sl.bing.net/kLsNTXCMDs" alt="Motivatsion rasm"
-        onerror="this.style.display='none'">
+      <img src="https://sl.bing.net/kLsNTXCMDs" alt="Motivatsion rasm" onerror="this.style.display='none'">
     </div>
-
-    <!-- 3 TILDA GAP -->
     <div class="tillar">
       <div class="karta">
         <div class="til-nom">🇺🇿 O'zbek tilida</div>
         <div class="til-gap">
-          <b style="color:#ffd700;font-size:15px">Xafa bo'lma, do'stim! 💛</b><br><br>
           Sen shuncha qiyinchiliklarga qaramasdan olg'a yurding.<br>
           O'z maqsading uchun hech narsadan qaytmading.<br>
           <b>Real hayotda ham shunday bo'l — hech qachon ortga qaytma! 💪</b>
         </div>
       </div>
-      <div class="karta">
-        <div class="til-nom">🇷🇺 Русский язык</div>
-        <div class="til-gap">
-          <b style="color:#ffd700;font-size:15px">Не грусти, друг! 💛</b><br><br>
-          Ты шёл вперёд, несмотря на все трудности.<br>
-          Ты не отступил ради своей цели.<br>
-          <b>Будь таким и в реальной жизни — никогда не оглядывайся назад! 💪</b>
-        </div>
-      </div>
-      <div class="karta">
-        <div class="til-nom">🇬🇧 English</div>
-        <div class="til-gap">
-          <b style="color:#ffd700;font-size:15px">Don't be sad, my friend! 💛</b><br><br>
-          You kept moving forward despite every challenge.<br>
-          You never gave up on your goal.<br>
-          <b>Be the same in real life — never look back! 💪</b>
-        </div>
-      </div>
     </div>
     <br>
     <div style="text-align:center">
-      <button class="btn" onclick="window.location.href='index.html'">🔄 Qayta o'ynash</button>
+      <button class="btn" onclick="window.location.reload()">🔄 Bosh menyuga qaytish</button>
     </div>
   </div>
+
+  <div id="ikkinchiFinal">
+    <div class="motiv-rasm">
+      <img src="https://sl.bing.net/kLsNTXCMDs" alt="G'oliblik rasmi">
+    </div>
+    <div class="xafa-bulma">xafa bo’lma do’stim 😂😂</div>
+    <br><br>
+    <button class="btn" onclick="window.location.reload()">🔄 Bosh menyuga qaytish</button>
+  </div>
+
 </div>
 
 <script>
-  const oyinchiNom=localStorage.getItem('oyinchiNom')||'';
-  document.getElementById('statNom').textContent=oyinchiNom||'—';
+  let tanlanganOyinGlobal = '';
+  let oyinchiNom = "O'yinchi";
+  
+  // Ismni tekshirib o'rnatish
+  if(localStorage.getItem('oyinchiNom')) {
+    oyinchiNom = localStorage.getItem('oyinchiNom');
+  }
+  if(document.getElementById('statNom')) {
+    document.getElementById('statNom').textContent = oyinchiNom;
+  }
 
+  // Yulduzli fon yaratish
   for(let i=0;i<60;i++){
     const y=document.createElement('div');
     y.className='yulduz-fon';
@@ -302,10 +298,10 @@
     document.body.appendChild(y);
   }
 
+  // Konfetti effekti
   const kCanvas=document.getElementById('konfetti');
   const kCtx=kCanvas.getContext('2d');
   kCanvas.width=window.innerWidth;kCanvas.height=window.innerHeight;
-  window.addEventListener('resize',()=>{kCanvas.width=window.innerWidth;kCanvas.height=window.innerHeight;});
   let konfettiAktiv=false;
   const kRanglar=['#ffd700','#ff6b6b','#00ff88','#00bfff','#ff69b4','#fff'];
   const zarralar=Array.from({length:120},()=>({
@@ -329,85 +325,67 @@
     requestAnimationFrame(kLoop);
   })();
 
-  async function malumotYukla(){
-    try{
-      const res=await fetch('/api/data');
-      const data=await res.json();
-      liderKo(data);
-    }catch(e){
-      document.getElementById('liderList').innerHTML=
-        '<div style="text-align:center;color:#aaa;font-size:13px;padding:10px">⚠️ Yuklab bo\'lmadi</div>';
-    }
+  function malumotYukla(){
+    const data = JSON.parse(localStorage.getItem('liderlar') || '[]');
+    liderKo(data);
+  }
+  function progressSaqla(nom,bosqich,vaqt,qadam){
+    let data = JSON.parse(localStorage.getItem('liderlar') || '[]');
+    data.push({nom,bosqich,vaqt,qadam,golib:false});
+    localStorage.setItem('liderlar', JSON.stringify(data));
+    malumotYukla();
   }
 
-  async function progressSaqla(nom,bosqich,vaqt,qadam){
-    try{
-      await fetch('/api/data',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({nom,bosqich,vaqt,qadam,golib:false})
-      });
-      malumotYukla();
-    }catch(e){console.log(e);}
-  }
-
-  async function golibSaqla(nom,vaqt,qadam){
-    try{
-      await fetch('/api/data',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({nom,bosqich:10,vaqt,qadam,golib:true})
-      });
-      malumotYukla();
-    }catch(e){console.log(e);}
-  }
-
-  const medallar=['🥇','🥈','🥉','🏅','🏅','🏅','🏅','🏅','🏅','🏅'];
   function vaqtFormat(s){const d=Math.floor(s/60),sec=s%60;return `${d}:${sec<10?'0'+sec:sec}`;}
 
   function liderKo(data){
     const div=document.getElementById('liderList');
+    if(!div) return;
     if(!data||data.length===0){
-      div.innerHTML='<div style="text-align:center;color:#aaa;font-size:13px;padding:10px">Hali hech kim yo\'q!</div>';
+      div.innerHTML='<div style="text-align:center;color:#aaa;font-size:13px;padding:10px">Hali xotira bo\'sh!</div>';
       return;
     }
-    const sorted=[...data].sort((a,b)=>b.bosqich-a.bosqich||a.vaqt-b.vaqt);
-    div.innerHTML=sorted.slice(0,10).map((o,i)=>`
+    div.innerHTML=data.slice(-5).reverse().map((o,i)=>`
       <div class="lider-item">
-        <span class="lider-medal">${o.golib?medallar[i]:'🎮'}</span>
-        <span class="lider-nom">${o.nom}</span>
+        <span class="lider-medal">🎮</span>
+        <span class="lider-nom">${o.nom || 'Oyinchi'}</span>
         <span class="lider-info">
-          ${o.golib?'✅ G\'olib':'📍 '+o.bosqich+'-bosqich'}<br>
-          ${o.vaqt?'⏱️ '+vaqtFormat(o.vaqt):''}
-          ${o.qadam?' 🚶'+o.qadam:''}
+          📍 ${o.bosqich}<br>
+          ⏱️ ${vaqtFormat(o.vaqt)} | 🚶 ${o.qadam}
         </span>
       </div>`).join('');
   }
 
+  // O'yinni tanlash funksiyasi
+  function tanlaOyin(tur) {
+    tanlanganOyinGlobal = tur;
+    document.getElementById('boshMenu').style.display = 'none';
+    if(tur === 'labirint') {
+      document.getElementById('qoidaWrap').style.display = 'block';
+    } else {
+      document.getElementById('qoidaWrap').style.display = 'none';
+      oyinBoshlashParvoz();
+    }
+  }
+
+  // ==========================================
+  // 1-O'YIN: LABIRINT LOGIKASI
+  // ==========================================
   const canvas=document.getElementById('labirint');
   const ctx=canvas.getContext('2d');
   const CS=360;
-
   const CFG=[
-    {hajm:7, soxta:0, qorong:0},
-    {hajm:9, soxta:1, qorong:0},
-    {hajm:11,soxta:1, qorong:0},
-    {hajm:11,soxta:2, qorong:2},
-    {hajm:13,soxta:2, qorong:2.5},
-    {hajm:13,soxta:3, qorong:3},
-    {hajm:15,soxta:3, qorong:3.5},
-    {hajm:15,soxta:4, qorong:4},
-    {hajm:17,soxta:4, qorong:4.5},
-    {hajm:21,soxta:5, qorong:5},
+    {hajm:9,  soxta:0, qorong:0}, {hajm:11, soxta:1, qorong:0},
+    {hajm:13, soxta:1, qorong:0}, {hajm:13, soxta:2, qorong:2},
+    {hajm:15, soxta:2, qorong:2.5}, {hajm:15, soxta:3, qorong:3},
+    {hajm:17, soxta:3, qorong:3.5}, {hajm:19, soxta:4, qorong:4},
+    {hajm:21, soxta:4, qorong:4.5}, {hajm:25, soxta:5, qorong:5},
   ];
 
-  let joriyBosqich=1;
-  let labirintGrid=[],hajm=7,KH=0;
-  let oyX=1,oyY=1;
-  let chiqishX=0,chiqishY=0;
-  let soxtalar=[];
-  let qadam=0,jamiQadam=0,engYuqori=0;
-  let boshlanganVaqt=null,umumiyVaqt=0,vaqtInterval=null;
+  let joriyBosqich=1, labirintGrid=[], hajm=9, KH=0;
+  let oyX=1, oyY=1, chiqishX=0, chiqishY=0, soxtalar=[];
+  let qadam=0, jamiQadam=0, engYuqori=0;
+  let boshlanganVaqt=null, umumiyVaqt=0, vaqtInterval=null;
   let oyinAktiv=false;
 
   function labirintYarat(n){
@@ -419,255 +397,235 @@
       dirs.forEach(([dx,dy])=>{
         const nx=x+dx,ny=y+dy;
         if(nx>0&&nx<hajm-1&&ny>0&&ny<hajm-1&&labirintGrid[ny][nx]===1){
-          labirintGrid[y+dy/2][x+dx/2]=0;
-          qazish(nx,ny);
+          labirintGrid[y+dy/2][x+dx/2]=0; qazish(nx,ny);
         }
       });
     }
     qazish(1,1);
-    chiqishX=hajm-2;chiqishY=hajm-2;
+    const burchaklar=[{x:hajm-2, y:hajm-2}, {x:1, y:hajm-2}, {x:hajm-2, y:1}];
+    const tanlangan=burchaklar[Math.floor(Math.random()*burchaklar.length)];
+    chiqishX=tanlangan.x; chiqishY=tanlangan.y;
     labirintGrid[chiqishY][chiqishX]=0;
-    labirintGrid[hajm-2][hajm-3]=0;
-    labirintGrid[hajm-3][hajm-2]=0;
+    if(chiqishX>1) labirintGrid[chiqishY][chiqishX-1]=0;
+    if(chiqishY>1) labirintGrid[chiqishY-1][chiqishX]=0;
   }
 
   function soxtalarQosh(son){
-    soxtalar=[];
-    let ur=0;
-    while(soxtalar.length<son&&ur<300){
-      ur++;
-      const x=Math.floor(Math.random()*(hajm-2))+1;
-      const y=Math.floor(Math.random()*(hajm-2))+1;
-      if(labirintGrid[y][x]===0&&
-         !(x===chiqishX&&y===chiqishY)&&
-         !(x===oyX&&y===oyY)&&
-         !soxtalar.some(s=>s.x===x&&s.y===y)&&
-         (Math.abs(x-chiqishX)>2||Math.abs(y-chiqishY)>2)){
-        soxtalar.push({x,y});
+    soxtalar=[]; const kesishganlar=[];
+    for(let y=1;y<hajm-1;y++){
+      for(let x=1;x<hajm-1;x++){
+        if(labirintGrid[y][x]===0){
+          const yollar=[[0,1],[0,-1],[1,0],[-1,0]].filter(([dx,dy])=>{
+            const ny=y+dy,nx=x+dx; return ny>=0&&ny<hajm&&nx>=0&&nx<hajm&&labirintGrid[ny][nx]===0;
+          }).length;
+          if(yollar>=3&&!(x===1&&y===1)&&!(x===chiqishX&&y===chiqishY)){ kesishganlar.push({x,y,yollar}); }
+        }
       }
+    }
+    kesishganlar.sort((a,b)=>b.yollar-a.yollar||(Math.random()-0.5));
+    let ur=0;
+    while(soxtalar.length<son&&ur<kesishganlar.length){
+      const joy=kesishganlar[ur];
+      if(!soxtalar.some(s=>s.x===joy.x&&s.y===joy.y)&&(Math.abs(joy.x-chiqishX)>2||Math.abs(joy.y-chiqishY)>2)){ soxtalar.push({x:joy.x,y:joy.y}); }
+      ur++;
     }
   }
 
   function qizilDoiraChiz(px,py,korinish){
-    ctx.shadowColor=`rgba(255,0,0,${korinish})`;
-    ctx.shadowBlur=18*korinish;
+    ctx.shadowColor=`rgba(255,0,0,${korinish})`; ctx.shadowBlur=18*korinish;
     const grd=ctx.createRadialGradient(px+KH/2,py+KH/2,0,px+KH/2,py+KH/2,KH/2);
-    grd.addColorStop(0,`rgba(255,100,100,${korinish})`);
-    grd.addColorStop(1,`rgba(200,0,0,${korinish})`);
-    ctx.fillStyle=grd;
-    ctx.beginPath();
-    ctx.arc(px+KH/2,py+KH/2,KH/2-1,0,Math.PI*2);
-    ctx.fill();
-    ctx.shadowBlur=0;
+    grd.addColorStop(0,`rgba(255,100,100,${korinish})`); grd.addColorStop(1,`rgba(200,0,0,${korinish})`);
+    ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(px+KH/2,py+KH/2,KH/2-1,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
   }
 
   function labirintChiz(){
-    const cfg=CFG[joriyBosqich-1];
-    KH=Math.floor(CS/hajm);
-    const ofX=Math.floor((CS-KH*hajm)/2);
-    const ofY=Math.floor((CS-KH*hajm)/2);
-
-    ctx.fillStyle='#050510';
-    ctx.fillRect(0,0,CS,CS);
-
+    if(tanlanganOyinGlobal !== 'labirint') return;
+    const cfg=CFG[joriyBosqich-1]; KH=Math.floor(CS/hajm);
+    ctx.fillStyle='#050510'; ctx.fillRect(0,0,CS,CS);
     const qRadius=cfg.qorong>0?(cfg.qorong*KH):CS*2;
 
     for(let y=0;y<hajm;y++){
       for(let x=0;x<hajm;x++){
-        const px=ofX+x*KH;
-        const py=ofY+y*KH;
-        const dX=(x-oyX)*KH,dY=(y-oyY)*KH;
-        const dist=Math.sqrt(dX*dX+dY*dY);
+        const px=x*KH, py=y*KH;
+        const dist=Math.sqrt(Math.pow((x-oyX)*KH,2)+Math.pow((y-oyY)*KH,2));
         const korinish=cfg.qorong>0?Math.max(0,1-dist/qRadius):1;
         if(korinish<=0.02)continue;
+
         if(labirintGrid[y][x]===1){
-          ctx.fillStyle=`rgba(20,60,80,${korinish})`;
-          ctx.fillRect(px,py,KH,KH);
-          ctx.strokeStyle=`rgba(0,180,120,${korinish*0.4})`;
-          ctx.lineWidth=1;
-          ctx.strokeRect(px+0.5,py+0.5,KH-1,KH-1);
-          ctx.fillStyle=`rgba(0,255,160,${korinish*0.06})`;
-          ctx.fillRect(px+1,py+1,KH-2,3);
-          ctx.fillRect(px+1,py+1,3,KH-2);
+          ctx.fillStyle=`rgba(20,60,80,${korinish})`; ctx.fillRect(px,py,KH,KH);
         }else{
-          ctx.fillStyle=`rgba(8,8,25,${korinish})`;
-          ctx.fillRect(px,py,KH,KH);
+          ctx.fillStyle=`rgba(8,8,25,${korinish})`; ctx.fillRect(px,py,KH,KH);
         }
       }
     }
-
     soxtalar.forEach(s=>{
-      const px=ofX+s.x*KH;
-      const py=ofY+s.y*KH;
-      const dX=(s.x-oyX)*KH,dY=(s.y-oyY)*KH;
-      const dist=Math.sqrt(dX*dX+dY*dY);
+      const dist=Math.sqrt(Math.pow((s.x-oyX)*KH,2)+Math.pow((s.y-oyY)*KH,2));
       const korinish=cfg.qorong>0?Math.max(0,1-dist/qRadius):1;
-      if(korinish<=0.05)return;
-      qizilDoiraChiz(px,py,korinish);
+      if(korinish>0.05) qizilDoiraChiz(s.x*KH,s.y*KH,korinish);
     });
+    const cDist=Math.sqrt(Math.pow((chiqishX-oyX)*KH,2)+Math.pow((chiqishY-oyY)*KH,2));
+    const cKorinish=cfg.qorong>0?Math.max(0,1-cDist/qRadius):1;
+    if(cKorinish>0.05) qizilDoiraChiz(chiqishX*KH,chiqishY*KH,cKorinish);
 
-    {
-      const px=ofX+chiqishX*KH;
-      const py=ofY+chiqishY*KH;
-      const dX=(chiqishX-oyX)*KH,dY=(chiqishY-oyY)*KH;
-      const dist=Math.sqrt(dX*dX+dY*dY);
-      const korinish=cfg.qorong>0?Math.max(0,1-dist/qRadius):1;
-      if(korinish>0.05)qizilDoiraChiz(px,py,korinish);
-    }
-
-    {
-      const px=ofX+oyX*KH;
-      const py=ofY+oyY*KH;
-      const grd=ctx.createRadialGradient(px+KH/2,py+KH/2,0,px+KH/2,py+KH/2,KH/2);
-      grd.addColorStop(0,'#88ddff');
-      grd.addColorStop(1,'#0066ff');
-      ctx.fillStyle=grd;
-      ctx.shadowColor='#4488ff';ctx.shadowBlur=20;
-      ctx.beginPath();ctx.arc(px+KH/2,py+KH/2,KH/2-1,0,Math.PI*2);ctx.fill();
-      ctx.shadowBlur=0;
-    }
-
-    if(cfg.qorong>0){
-      const cx=ofX+oyX*KH+KH/2;
-      const cy=ofY+oyY*KH+KH/2;
-      const grd=ctx.createRadialGradient(cx,cy,qRadius*0.6,cx,cy,qRadius*1.8);
-      grd.addColorStop(0,'rgba(0,0,0,0)');
-      grd.addColorStop(1,'rgba(0,0,0,0.98)');
-      ctx.fillStyle=grd;
-      ctx.fillRect(0,0,CS,CS);
-    }
-
-    ctx.fillStyle='rgba(0,0,0,0.7)';
-    ctx.beginPath();ctx.roundRect(5,5,200,26,6);ctx.fill();
-    ctx.fillStyle='#ffd700';ctx.font='bold 12px Arial';ctx.textAlign='left';
-    const vO=Math.floor((Date.now()-boshlanganVaqt)/1000)+umumiyVaqt;
-    ctx.fillText(`⏱️ ${vaqtFormat(vO)}  🚶 ${qadam}  🔴 ${soxtalar.length+1} ta`,10,21);
+    // O'yinchi
+    const oPx=oyX*KH, oPy=oyY*KH;
+    ctx.fillStyle='#0066ff'; ctx.shadowColor='#4488ff'; ctx.shadowBlur=20;
+    ctx.beginPath(); ctx.arc(oPx+KH/2,oPy+KH/2,KH/2-1,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
   }
 
   function harakat(dx,dy){
-    if(!oyinAktiv)return;
+    if(!oyinAktiv || tanlanganOyinGlobal !== 'labirint')return;
     const nx=oyX+dx,ny=oyY+dy;
-    if(nx<0||nx>=hajm||ny<0||ny>=hajm)return;
-    if(labirintGrid[ny][nx]===1)return;
-    oyX=nx;oyY=ny;
-    qadam++;jamiQadam++;
+    if(nx<0||nx>=hajm||ny<0||ny>=hajm||labirintGrid[ny][nx]===1)return;
+    oyX=nx; oyY=ny; qadam++; jamiQadam++;
     document.getElementById('qadamKo').textContent=qadam;
     document.getElementById('statQadam').textContent=jamiQadam;
     labirintChiz();
+
     if(soxtalar.some(s=>s.x===oyX&&s.y===oyY)){
-      oyinAktiv=false;
-      document.getElementById('soxta').style.display='block';
-      return;
+      oyinAktiv=false; document.getElementById('soxta').style.display='block'; return;
     }
-    if(oyX===chiqishX&&oyY===chiqishY){
-      bosqichOtdi();
-    }
+    if(oyX===chiqishX&&oyY===chiqishY){ bosqichOtdi(); }
   }
 
-  function soxtaYop(){
-    document.getElementById('soxta').style.display='none';
-    soxtalar=soxtalar.filter(s=>!(s.x===oyX&&s.y===oyY));
-    oyinAktiv=true;
-    labirintChiz();
-  }
+  function soxtaYop(){ document.getElementById('soxta').style.display='none'; soxtalar=soxtalar.filter(s=>!(s.x===oyX&&s.y===oyY)); oyinAktiv=true; labirintChiz(); }
 
   function bosqichOtdi(){
     oyinAktiv=false;
     const vO=Math.floor((Date.now()-boshlanganVaqt)/1000)+umumiyVaqt;
-    if(joriyBosqich>engYuqori){
-      engYuqori=joriyBosqich;
-      document.getElementById('statBosqich').textContent=engYuqori+'/10';
-      if(oyinchiNom)progressSaqla(oyinchiNom,engYuqori,vO,jamiQadam);
-    }
+    if(joriyBosqich>engYuqori){ engYuqori=joriyBosqich; document.getElementById('statBosqich').textContent=engYuqori+'/10'; }
+    
     if(joriyBosqich>=10){
-      konfettiAktiv=true;
-      clearInterval(vaqtInterval);
-      document.getElementById('statHolat').textContent='🏆 G\'OLIB!';
-      document.getElementById('statHolat').style.color='#ffd700';
-      document.getElementById('yutishPanel').style.display='block';
-      document.getElementById('yutishGap').textContent=
-        `Barcha 10 bosqichni yechdingiz! ⏱️ ${vaqtFormat(vO)} | 🚶 ${jamiQadam} qadam`;
-      if(oyinchiNom)document.getElementById('nomInput').value=oyinchiNom;
+      konfettiAktiv=true; clearInterval(vaqtInterval);
+      progressSaqla(oyinchiNom, "Labirint G'olibi", vO, jamiQadam);
+      document.getElementById('oyinWrap').style.display='none';
+      document.getElementById('statistikaOyna').style.display='none';
+      document.getElementById('liderOyna').style.display='none';
       document.getElementById('motivatsiya').style.display='block';
-    }else{
-      document.getElementById('bosqichOtdiGap').textContent=
-        `${joriyBosqich}-bosqich: ⏱️ ${vaqtFormat(vO)} | 🚶 ${qadam} qadam`;
+    }else {
+      document.getElementById('bosqichOtdiGap').textContent=`${joriyBosqich}-bosqich tugadi!`;
       document.getElementById('bosqichOtdi').style.display='block';
     }
   }
 
-  function keyingiBosqich(){
-    document.getElementById('bosqichOtdi').style.display='none';
-    joriyBosqich++;
-    document.getElementById('bosqichKo').textContent=joriyBosqich;
-    yangiLabirint();
-  }
-
-  function yangiLabirint(){
-    const cfg=CFG[joriyBosqich-1];
-    labirintYarat(cfg.hajm);
-    soxtalarQosh(cfg.soxta);
-    oyX=1;oyY=1;qadam=0;
-    document.getElementById('qadamKo').textContent=0;
-    oyinAktiv=true;
-    labirintChiz();
-  }
+  function keyingiBosqich(){ document.getElementById('bosqichOtdi').style.none = 'none'; document.getElementById('bosqichOtdi').style.display='none'; joriyBosqich++; document.getElementById('bosqichKo').textContent=joriyBosqich; yangiLabirint(); }
+  function yangiLabirint(){ const cfg=CFG[joriyBosqich-1]; labirintYarat(cfg.hajm); soxtalarQosh(cfg.soxta); oyX=1; oyY=1; qadam=0; oyinAktiv=true; labirintChiz(); }
 
   function oyinBoshlash(){
     document.getElementById('qoidaWrap').style.display='none';
     document.getElementById('oyinWrap').style.display='block';
-    joriyBosqich=1;
-    jamiQadam=0;
-    engYuqori=0;
-    umumiyVaqt=0;
+    document.getElementById('boshqaruvLabirint').style.display='flex';
+    document.getElementById('boshqaruvParvoz').style.display='none';
+    document.getElementById('bosqichKo').textContent = joriyBosqich;
     boshlanganVaqt=Date.now();
     clearInterval(vaqtInterval);
     vaqtInterval=setInterval(()=>{
-      if(!boshlanganVaqt)return;
-      const o=Math.floor((Date.now()-boshlanganVaqt)/1000)+umumiyVaqt;
+      const o=Math.floor((Date.now()-boshlanganVaqt)/1000);
       document.getElementById('vaqtKo').textContent=vaqtFormat(o);
-      document.getElementById('statVaqt').textContent=vaqtFormat(o);
-      labirintChiz();
+      if(document.getElementById('statVaqt')) {
+         document.getElementById('statVaqt').textContent=vaqtFormat(o);
+      }
     },1000);
     yangiLabirint();
   }
 
+  // ==========================================
+  // 2-O'YIN: FAZOVIY PARVOZ LOGIKASI
+  // ==========================================
+  let qushY=180, qushTezlik=0, tortishish=0.35, sakrashKuch=-5.5;
+  let tosiqlar=[], parvozTaymer=0, ochko=0, parvozAktiv=false;
+  let parvozAnimatsiyaFrame;
+
+  function oyinBoshlashParvoz() {
+    document.getElementById('oyinWrap').style.display='block';
+    document.getElementById('boshqaruvLabirint').style.display='none';
+    document.getElementById('boshqaruvParvoz').style.display='flex';
+    document.getElementById('bosqichKo').textContent = "Parvoz";
+    boshlanganVaqt=Date.now();
+    parvozAktiv = true; qushY=180; qushTezlik=0; tosiqlar=[]; ochko=0;
+    
+    clearInterval(vaqtInterval);
+    vaqtInterval=setInterval(()=>{
+      const o=Math.floor((Date.now()-boshlanganVaqt)/1000);
+      document.getElementById('vaqtKo').textContent=vaqtFormat(o);
+    },1000);
+
+    parvozLoop();
+  }
+
+  function parvozLoop() {
+    if(!parvozAktiv || tanlanganOyinGlobal !== 'parvoz') return;
+    ctx.clearRect(0,0,CS,CS);
+    ctx.fillStyle='#07071f'; ctx.fillRect(0,0,CS,CS);
+
+    // Fizika
+    qushTezlik += tortishish; qushY += qushTezlik;
+    
+    // O'yinchi Kemasi
+    ctx.fillStyle='#ffea00'; ctx.beginPath(); ctx.arc(60, qushY, 11, 0, Math.PI*2); ctx.fill();
+
+    // To'siqlar yaratish
+    parvozTaymer++;
+    if(parvozTaymer % 75 === 0) {
+      let bo'shliq = 95; 
+      let ustunY = Math.random() * (CS - bo'shliq - 100) + 50;
+      tosiqlar.push({x: CS, y: ustunY, w: 45, h: bo'shliq});
+    }
+
+    // To'siqlarni chizish
+    for(let i=tosiqlar.length-1; i>=0; i--) {
+      let t = tosiqlar[i]; t.x -= 3; 
+
+      ctx.fillStyle='#ff4444';
+      ctx.fillRect(t.x, 0, t.w, t.y);
+      ctx.fillRect(t.x, t.y + t.h, t.w, CS - (t.y + t.h));
+
+      // To'qnashuv
+      if(60+11 > t.x && 60-11 < t.x + t.w) {
+        if(qushY-11 < t.y || qushY+11 > t.y + t.h) { parvozYutqazdi(); return; }
+      }
+      if(t.x + t.w < 0) { tosiqlar.splice(i,1); ochko++; document.getElementById('qadamKo').textContent=ochko; }
+    }
+
+    if(qushY > CS || qushY < 0) { parvozYutqazdi(); return; }
+    if(ochko >= 10) { parvozYutdi(); return; }
+
+    parvozAnimatsiyaFrame = requestAnimationFrame(parvozLoop);
+  }
+
+  function parvozSakrash() { if(parvozAktiv) qushTezlik = sakrashKuch; }
+  
+  function parvozYutqazdi() {
+    parvozAktiv = false; clearInterval(vaqtInterval); cancelAnimationFrame(parvozAnimatsiyaFrame);
+    alert("Kema chalindi! Qayta urining.");
+    oyinBoshlashParvoz();
+  }
+
+  function parvozYutdi() {
+    parvozAktiv = false; clearInterval(vaqtInterval); cancelAnimationFrame(parvozAnimatsiyaFrame);
+    konfettiAktiv = true;
+    const vO=Math.floor((Date.now()-boshlanganVaqt)/1000);
+    progressSaqla(oyinchiNom, "Parvoz G'olibi", vO, ochko);
+    document.getElementById('oyinWrap').style.display='none';
+    document.getElementById('statistikaOyna').style.display='none';
+    document.getElementById('liderOyna').style.display='none';
+    document.getElementById('ikkinchiFinal').style.display='block';
+  }
+
+  // Boshqaruv elementlari ulanishi
   document.getElementById('btnYuqori').onclick=()=>harakat(0,-1);
   document.getElementById('btnPast').onclick=()=>harakat(0,1);
   document.getElementById('btnChap').onclick=()=>harakat(-1,0);
   document.getElementById('btnOng').onclick=()=>harakat(1,0);
-  document.getElementById('btnYuqori').ontouchstart=(e)=>{e.preventDefault();harakat(0,-1);};
-  document.getElementById('btnPast').ontouchstart=(e)=>{e.preventDefault();harakat(0,1);};
-  document.getElementById('btnChap').ontouchstart=(e)=>{e.preventDefault();harakat(-1,0);};
-  document.getElementById('btnOng').ontouchstart=(e)=>{e.preventDefault();harakat(1,0);};
+  document.getElementById('btnSakrash').onclick=()=>parvozSakrash();
 
   document.addEventListener('keydown',e=>{
-    if(e.key==='ArrowUp'){e.preventDefault();harakat(0,-1);}
-    if(e.key==='ArrowDown'){e.preventDefault();harakat(0,1);}
-    if(e.key==='ArrowLeft'){e.preventDefault();harakat(-1,0);}
-    if(e.key==='ArrowRight'){e.preventDefault();harakat(1,0);}
+    if(e.key==='ArrowUp'){e.preventDefault(); if(tanlanganOyinGlobal==='labirint') harakat(0,-1); else parvozSakrash();}
+    if(e.key==='ArrowDown'){e.preventDefault(); if(tanlanganOyinGlobal==='labirint') harakat(0,1);}
+    if(e.key==='ArrowLeft'){e.preventDefault(); if(tanlanganOyinGlobal==='labirint') harakat(-1,0);}
+    if(e.key==='ArrowRight'){e.preventDefault(); if(tanlanganOyinGlobal==='labirint') harakat(1,0);}
+    if(e.key===' '){e.preventDefault(); parvozSakrash();}
   });
-
-  let tX=0,tY=0;
-  canvas.addEventListener('touchstart',e=>{tX=e.touches[0].clientX;tY=e.touches[0].clientY;},{passive:true});
-  canvas.addEventListener('touchend',e=>{
-    const dx=e.changedTouches[0].clientX-tX;
-    const dy=e.changedTouches[0].clientY-tY;
-    if(Math.abs(dx)>Math.abs(dy)){dx>20?harakat(1,0):dx<-20?harakat(-1,0):null;}
-    else{dy>20?harakat(0,1):dy<-20?harakat(0,-1):null;}
-  },{passive:true});
-
-  async function goliblarQosh(){
-    const nom=document.getElementById('nomInput').value.trim();
-    if(!nom||nom.length<3){
-      document.getElementById('nomInput').style.border='1px solid red';
-      return;
-    }
-    const vO=Math.floor((Date.now()-boshlanganVaqt)/1000)+umumiyVaqt;
-    await golibSaqla(nom,vO,jamiQadam);
-    document.getElementById('nomQoshWrap').innerHTML=
-      `<p style="color:#00ff88;font-size:15px;font-weight:bold">✅ ${nom}, g'oliblar ro'yxatidasiz! 🎉</p>`;
-  }
 
   malumotYukla();
 </script>
