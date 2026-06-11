@@ -271,6 +271,9 @@
       <img src="https://sl.bing.net/kLsNTXCMDs" alt="G'oliblik rasmi">
     </div>
     <div class="xafa-bulma">xafa bo’lma do’stim 😂😂</div>
+    <p style="color: #ffd700; margin-top: 15px; font-size: 14px; font-style: italic; line-height: 1.6; padding: 0 10px;">
+      "Bu yo'lni o'zing tanlaganingni unutma va hayotning har qanday zarbasiga tayyor tur!"
+    </p>
     <br><br>
     <button class="btn" onclick="window.location.reload()">🔄 Bosh menyuga qaytish</button>
   </div>
@@ -281,15 +284,18 @@
   let tanlanganOyinGlobal = '';
   let oyinchiNom = "O'yinchi";
   
-  // Ismni tekshirib o'rnatish
-  if(localStorage.getItem('oyinchiNom')) {
-    oyinchiNom = localStorage.getItem('oyinchiNom');
-  }
+  try {
+    let saqlanganNom = localStorage.getItem('oyinchiNom');
+    if(saqlanganNom && saqlanganNom.trim() !== "") {
+      oyinchiNom = saqlanganNom;
+    }
+  } catch(e) { console.log("Xotiradan o'qishda xato."); }
+
   if(document.getElementById('statNom')) {
     document.getElementById('statNom').textContent = oyinchiNom;
   }
 
-  // Yulduzli fon yaratish
+  // Yulduzli fon
   for(let i=0;i<60;i++){
     const y=document.createElement('div');
     y.className='yulduz-fon';
@@ -298,7 +304,7 @@
     document.body.appendChild(y);
   }
 
-  // Konfetti effekti
+  // Konfetti
   const kCanvas=document.getElementById('konfetti');
   const kCtx=kCanvas.getContext('2d');
   kCanvas.width=window.innerWidth;kCanvas.height=window.innerHeight;
@@ -326,14 +332,18 @@
   })();
 
   function malumotYukla(){
-    const data = JSON.parse(localStorage.getItem('liderlar') || '[]');
-    liderKo(data);
+    try {
+      const data = JSON.parse(localStorage.getItem('liderlar') || '[]');
+      liderKo(data);
+    } catch(e) { liderKo([]); }
   }
   function progressSaqla(nom,bosqich,vaqt,qadam){
-    let data = JSON.parse(localStorage.getItem('liderlar') || '[]');
-    data.push({nom,bosqich,vaqt,qadam,golib:false});
-    localStorage.setItem('liderlar', JSON.stringify(data));
-    malumotYukla();
+    try {
+      let data = JSON.parse(localStorage.getItem('liderlar') || '[]');
+      data.push({nom,bosqich,vaqt,qadam,golib:false});
+      localStorage.setItem('liderlar', JSON.stringify(data));
+      malumotYukla();
+    } catch(e) {}
   }
 
   function vaqtFormat(s){const d=Math.floor(s/60),sec=s%60;return `${d}:${sec<10?'0'+sec:sec}`;}
@@ -348,7 +358,7 @@
     div.innerHTML=data.slice(-5).reverse().map((o,i)=>`
       <div class="lider-item">
         <span class="lider-medal">🎮</span>
-        <span class="lider-nom">${o.nom || 'Oyinchi'}</span>
+        <span class="lider-nom">${o.nom || "O'yinchi"}</span>
         <span class="lider-info">
           📍 ${o.bosqich}<br>
           ⏱️ ${vaqtFormat(o.vaqt)} | 🚶 ${o.qadam}
@@ -356,7 +366,6 @@
       </div>`).join('');
   }
 
-  // O'yinni tanlash funksiyasi
   function tanlaOyin(tur) {
     tanlanganOyinGlobal = tur;
     document.getElementById('boshMenu').style.display = 'none';
@@ -369,7 +378,7 @@
   }
 
   // ==========================================
-  // 1-O'YIN: LABIRINT LOGIKASI
+  // LABIRINT LOGIKASI
   // ==========================================
   const canvas=document.getElementById('labirint');
   const ctx=canvas.getContext('2d');
@@ -467,7 +476,6 @@
     const cKorinish=cfg.qorong>0?Math.max(0,1-cDist/qRadius):1;
     if(cKorinish>0.05) qizilDoiraChiz(chiqishX*KH,chiqishY*KH,cKorinish);
 
-    // O'yinchi
     const oPx=oyX*KH, oPy=oyY*KH;
     ctx.fillStyle='#0066ff'; ctx.shadowColor='#4488ff'; ctx.shadowBlur=20;
     ctx.beginPath(); ctx.arc(oPx+KH/2,oPy+KH/2,KH/2-1,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
@@ -508,7 +516,7 @@
     }
   }
 
-  function keyingiBosqich(){ document.getElementById('bosqichOtdi').style.none = 'none'; document.getElementById('bosqichOtdi').style.display='none'; joriyBosqich++; document.getElementById('bosqichKo').textContent=joriyBosqich; yangiLabirint(); }
+  function keyingiBosqich(){ document.getElementById('bosqichOtdi').style.display='none'; joriyBosqich++; document.getElementById('bosqichKo').textContent=joriyBosqich; yangiLabirint(); }
   function yangiLabirint(){ const cfg=CFG[joriyBosqich-1]; labirintYarat(cfg.hajm); soxtalarQosh(cfg.soxta); oyX=1; oyY=1; qadam=0; oyinAktiv=true; labirintChiz(); }
 
   function oyinBoshlash(){
@@ -530,7 +538,7 @@
   }
 
   // ==========================================
-  // 2-O'YIN: FAZOVIY PARVOZ LOGIKASI
+  // FAZOVIY PARVOZ LOGIKASI
   // ==========================================
   let qushY=180, qushTezlik=0, tortishish=0.35, sakrashKuch=-5.5;
   let tosiqlar=[], parvozTaymer=0, ochko=0, parvozAktiv=false;
@@ -558,13 +566,9 @@
     ctx.clearRect(0,0,CS,CS);
     ctx.fillStyle='#07071f'; ctx.fillRect(0,0,CS,CS);
 
-    // Fizika
     qushTezlik += tortishish; qushY += qushTezlik;
-    
-    // O'yinchi Kemasi
     ctx.fillStyle='#ffea00'; ctx.beginPath(); ctx.arc(60, qushY, 11, 0, Math.PI*2); ctx.fill();
 
-    // To'siqlar yaratish
     parvozTaymer++;
     if(parvozTaymer % 75 === 0) {
       let bo'shliq = 95; 
@@ -572,7 +576,6 @@
       tosiqlar.push({x: CS, y: ustunY, w: 45, h: bo'shliq});
     }
 
-    // To'siqlarni chizish
     for(let i=tosiqlar.length-1; i>=0; i--) {
       let t = tosiqlar[i]; t.x -= 3; 
 
@@ -580,7 +583,6 @@
       ctx.fillRect(t.x, 0, t.w, t.y);
       ctx.fillRect(t.x, t.y + t.h, t.w, CS - (t.y + t.h));
 
-      // To'qnashuv
       if(60+11 > t.x && 60-11 < t.x + t.w) {
         if(qushY-11 < t.y || qushY+11 > t.y + t.h) { parvozYutqazdi(); return; }
       }
@@ -612,7 +614,6 @@
     document.getElementById('ikkinchiFinal').style.display='block';
   }
 
-  // Boshqaruv elementlari ulanishi
   document.getElementById('btnYuqori').onclick=()=>harakat(0,-1);
   document.getElementById('btnPast').onclick=()=>harakat(0,1);
   document.getElementById('btnChap').onclick=()=>harakat(-1,0);
